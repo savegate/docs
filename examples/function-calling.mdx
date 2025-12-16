@@ -1,0 +1,321 @@
+---
+title: "Function Calling"
+description: "Enable AI to interact with external tools and APIs"
+---
+
+## Overview
+
+Function calling allows models to call external functions/tools, enabling them to interact with APIs, databases, and other systems.
+
+## Basic Function Calling
+
+<CodeGroup>
+```python Python
+from openai import OpenAI
+import json
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+# Define functions
+functions = [
+    {
+        "name": "get_weather",
+        "description": "Get the current weather in a location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "City and state, e.g. San Francisco, CA"
+                },
+                "unit": {
+                    "type": "string",
+                    "enum": ["celsius", "fahrenheit"]
+                }
+            },
+            "required": ["location"]
+        }
+    }
+]
+
+# Make request
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "What's the weather in Boston?"}],
+    functions=functions,
+    function_call="auto"
+)
+
+# Check if function was called
+if response.choices[0].message.function_call:
+    function_call = response.choices[0].message.function_call
+    print(f"Function: {function_call.name}")
+    print(f"Arguments: {function_call.arguments}")
+```
+
+```javascript Node.js
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'sk-savegate-xxxxxxxxxxxxx',
+  baseURL: 'https://api.savegate.ai/v1'
+});
+
+const functions = [
+  {
+    name: 'get_weather',
+    description: 'Get the current weather in a location',
+    parameters: {
+      type: 'object',
+      properties: {
+        location: {
+          type: 'string',
+          description: 'City and state, e.g. San Francisco, CA'
+        },
+        unit: {
+          type: 'string',
+          enum: ['celsius', 'fahrenheit']
+        }
+      },
+      required: ['location']
+    }
+  }
+];
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: "What's the weather in Boston?" }],
+  functions: functions,
+  function_call: 'auto'
+});
+
+if (response.choices[0].message.function_call) {
+  const functionCall = response.choices[0].message.function_call;
+  console.log(`Function: ${functionCall.name}`);
+  console.log(`Arguments: ${functionCall.arguments}`);
+}
+```
+</CodeGroup>
+
+## Complete Example with Function Execution
+
+```python
+import json
+import requests
+
+def get_weather(location, unit="fahrenheit"):
+    """Actual implementation of weather lookup"""
+    # This would call a real weather API
+    # For demo, return mock data
+    return {
+        "location": location,
+        "temperature": 72,
+        "unit": unit,
+        "forecast": "Sunny"
+    }
+
+def run_conversation(user_message):
+    # Step 1: Send message with function definitions
+    messages = [{"role": "user", "content": user_message}]
+
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=messages,
+        functions=[{
+            "name": "get_weather",
+            "description": "Get current weather",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string"},
+                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+                },
+                "required": ["location"]
+            }
+        }],
+        function_call="auto"
+    )
+
+    message = response.choices[0].message
+
+    # Step 2: Check if model wants to call a function
+    if message.function_call:
+        function_name = message.function_call.name
+        arguments = json.loads(message.function_call.arguments)
+
+        # Step 3: Call the function
+        if function_name == "get_weather":
+            function_response = get_weather(**arguments)
+
+            # Step 4: Send function response back to model
+            messages.append(message)
+            messages.append({
+                "role": "function",
+                "name": function_name,
+                "content": json.dumps(function_response)
+            })
+
+            # Step 5: Get final response
+            second_response = client.chat.completions.create(
+                model="gpt-4",
+                messages=messages
+            )
+
+            return second_response.choices[0].message.content
+
+    return message.content
+
+# Usage
+result = run_conversation("What's the weather like in Boston?")
+print(result)
+# Output: "The current weather in Boston is sunny with a temperature of 72°F."
+```
+
+## Multiple Functions
+
+```python
+functions = [
+    {
+        "name": "get_weather",
+        "description": "Get weather for a location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string"}
+            },
+            "required": ["location"]
+        }
+    },
+    {
+        "name": "search_web",
+        "description": "Search the web for information",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"}
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "calculate",
+        "description": "Perform mathematical calculations",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "expression": {"type": "string"}
+            },
+            "required": ["expression"]
+        }
+    }
+]
+
+# The model will choose the appropriate function
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "What is 25 * 17?"}],
+    functions=functions
+)
+```
+
+## Advanced: Function Calling Agent
+
+```python
+class FunctionAgent:
+    def __init__(self, client):
+        self.client = client
+        self.functions = {}
+        self.function_schemas = []
+
+    def register_function(self, schema, implementation):
+        """Register a function with its schema and implementation"""
+        self.function_schemas.append(schema)
+        self.functions[schema["name"]] = implementation
+
+    def execute_function(self, name, arguments):
+        """Execute a registered function"""
+        if name in self.functions:
+            return self.functions[name](**arguments)
+        raise ValueError(f"Function {name} not found")
+
+    def run(self, user_message, max_iterations=5):
+        """Run the agent with function calling support"""
+        messages = [{"role": "user", "content": user_message}]
+
+        for i in range(max_iterations):
+            response = self.client.chat.completions.create(
+                model="gpt-4",
+                messages=messages,
+                functions=self.function_schemas,
+                function_call="auto"
+            )
+
+            message = response.choices[0].message
+
+            # If no function call, we're done
+            if not message.function_call:
+                return message.content
+
+            # Execute the function
+            function_name = message.function_call.name
+            arguments = json.loads(message.function_call.arguments)
+
+            print(f"Calling {function_name} with {arguments}")
+
+            result = self.execute_function(function_name, arguments)
+
+            # Add to conversation
+            messages.append(message)
+            messages.append({
+                "role": "function",
+                "name": function_name,
+                "content": json.dumps(result)
+            })
+
+        return "Max iterations reached"
+
+# Usage
+agent = FunctionAgent(client)
+
+# Register functions
+agent.register_function(
+    {
+        "name": "get_weather",
+        "description": "Get weather",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string"}
+            },
+            "required": ["location"]
+        }
+    },
+    get_weather
+)
+
+agent.register_function(
+    {
+        "name": "calculate",
+        "description": "Calculate expression",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "expression": {"type": "string"}
+            },
+            "required": ["expression"]
+        }
+    },
+    lambda expression: eval(expression)  # Be careful with eval!
+)
+
+# Run
+result = agent.run("What's 25 + 17 and what's the weather in Boston?")
+print(result)
+```
+
+<Card title="More Examples" icon="code" href="/examples/multi-model">
+  Learn how to use multiple models together
+</Card>

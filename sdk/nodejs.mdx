@@ -1,0 +1,160 @@
+---
+title: "Node.js Examples"
+description: "Complete Node.js examples for using SaveGate"
+---
+
+## Installation
+
+```bash
+npm install openai
+```
+
+## Basic Chat
+
+```javascript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'sk-savegate-xxxxxxxxxxxxx',
+  baseURL: 'https://api.savegate.ai/v1'
+});
+
+async function chat(message, model = 'gpt-4') {
+  const response = await client.chat.completions.create({
+    model: model,
+    messages: [{ role: 'user', content: message }]
+  });
+
+  return response.choices[0].message.content;
+}
+
+// Usage
+const result = await chat('What is JavaScript?');
+console.log(result);
+```
+
+## Conversation History
+
+```javascript
+async function chatConversation(messages, model = 'gpt-4') {
+  const response = await client.chat.completions.create({
+    model: model,
+    messages: messages
+  });
+
+  return response.choices[0].message.content;
+}
+
+// Usage
+const conversation = [
+  { role: 'system', content: 'You are a helpful coding assistant.' },
+  { role: 'user', content: 'How do I read a file in Node.js?' }
+];
+
+let response = await chatConversation(conversation);
+console.log(response);
+
+// Continue conversation
+conversation.push({ role: 'assistant', content: response });
+conversation.push({ role: 'user', content: 'Can you show me an example?' });
+
+response = await chatConversation(conversation);
+console.log(response);
+```
+
+## Parallel Processing
+
+```javascript
+async function processMultiple(prompts, model = 'gpt-4') {
+  const promises = prompts.map(prompt =>
+    client.chat.completions.create({
+      model: model,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  );
+
+  const responses = await Promise.all(promises);
+  return responses.map(r => r.choices[0].message.content);
+}
+
+// Usage
+const prompts = [
+  'What is Python?',
+  'What is JavaScript?',
+  'What is Go?'
+];
+
+const results = await processMultiple(prompts);
+results.forEach((result, i) => {
+  console.log(`Q: ${prompts[i]}`);
+  console.log(`A: ${result}\n`);
+});
+```
+
+## Streaming
+
+```javascript
+async function streamChat(message, model = 'gpt-4', callback = null) {
+  const stream = await client.chat.completions.create({
+    model: model,
+    messages: [{ role: 'user', content: message }],
+    stream: true
+  });
+
+  let fullResponse = '';
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content || '';
+    if (content) {
+      fullResponse += content;
+      if (callback) callback(content);
+    }
+  }
+
+  return fullResponse;
+}
+
+// Usage
+const response = await streamChat(
+  'Tell me a short story',
+  'gpt-4',
+  (chunk) => process.stdout.write(chunk)
+);
+
+console.log('\n\nFull response:', response);
+```
+
+## Error Handling with Retry
+
+```javascript
+async function chatWithRetry(message, model = 'gpt-4', maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await client.chat.completions.create({
+        model: model,
+        messages: [{ role: 'user', content: message }]
+      });
+
+      return response.choices[0].message.content;
+
+    } catch (error) {
+      if (attempt === maxRetries - 1) throw error;
+
+      const wait = Math.pow(2, attempt) * 1000;
+      console.log(`Error: ${error.message}. Retrying in ${wait}ms...`);
+      await new Promise(resolve => setTimeout(resolve, wait));
+    }
+  }
+}
+
+// Usage
+try {
+  const result = await chatWithRetry('Hello!');
+  console.log(result);
+} catch (error) {
+  console.error('Failed after retries:', error);
+}
+```
+
+<Card title="More Examples" icon="code" href="/examples/basic-chat">
+  See complete example applications
+</Card>

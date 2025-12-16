@@ -1,0 +1,454 @@
+---
+title: "Migration Guide"
+description: "Migrate from OpenAI, Anthropic, or other providers to SaveGate"
+---
+
+## Why Migrate to SaveGate?
+
+<CardGroup cols={2}>
+  <Card title="30-50% Cost Savings" icon="piggy-bank">
+    Save significantly on API costs with enterprise pricing passed to you
+  </Card>
+
+  <Card title="Unlimited Rate Limits" icon="infinity">
+    No more TPM/RPM restrictions - scale without limits
+  </Card>
+
+  <Card title="Multi-Provider Access" icon="layer-group">
+    Access all providers through a single API key
+  </Card>
+
+  <Card title="Drop-In Replacement" icon="bolt">
+    Change 2 lines of code - that's it!
+  </Card>
+</CardGroup>
+
+## From OpenAI
+
+### Python
+
+<CodeGroup>
+```python Before
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-...your-openai-key..."
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+```python After
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",  # SaveGate API key
+    base_url="https://api.savegate.ai/v1"  # SaveGate base URL
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+</CodeGroup>
+
+### Node.js
+
+<CodeGroup>
+```javascript Before
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+```
+
+```javascript After
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.SAVEGATE_API_KEY,
+  baseURL: 'https://api.savegate.ai/v1'
+});
+```
+</CodeGroup>
+
+### Environment Variables
+
+Update your `.env` file:
+
+<CodeGroup>
+```bash Before
+OPENAI_API_KEY=sk-...your-openai-key...
+```
+
+```bash After
+SAVEGATE_API_KEY=sk-savegate-xxxxxxxxxxxxx
+OPENAI_API_BASE=https://api.savegate.ai/v1
+```
+</CodeGroup>
+
+## From Anthropic
+
+### Python
+
+<CodeGroup>
+```python Before
+from anthropic import Anthropic
+
+client = Anthropic(
+    api_key="sk-ant-..."
+)
+
+message = client.messages.create(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello"}]
+)
+```
+
+```python After (Option 1: Keep Anthropic SDK)
+from anthropic import Anthropic
+
+client = Anthropic(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+message = client.messages.create(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello"}]
+)
+```
+
+```python After (Option 2: Switch to OpenAI SDK)
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="claude-3-5-sonnet-20241022",
+    messages=[{"role": "user", "content": "Hello"}]
+)
+```
+</CodeGroup>
+
+## From Google AI
+
+<CodeGroup>
+```python Before
+import google.generativeai as genai
+
+genai.configure(api_key="...")
+model = genai.GenerativeModel('gemini-pro')
+response = model.generate_content("Hello")
+```
+
+```python After
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="gemini-pro",
+    messages=[{"role": "user", "content": "Hello"}]
+)
+```
+</CodeGroup>
+
+## From LangChain
+
+### Before
+
+```python
+from langchain.chat_models import ChatOpenAI
+
+llm = ChatOpenAI(
+    model="gpt-4",
+    openai_api_key="sk-..."
+)
+```
+
+### After
+
+```python
+from langchain.chat_models import ChatOpenAI
+
+llm = ChatOpenAI(
+    model="gpt-4",
+    openai_api_key="sk-savegate-xxxxxxxxxxxxx",
+    openai_api_base="https://api.savegate.ai/v1"
+)
+```
+
+Or use environment variables:
+
+```python
+import os
+
+os.environ["OPENAI_API_KEY"] = "sk-savegate-xxxxxxxxxxxxx"
+os.environ["OPENAI_API_BASE"] = "https://api.savegate.ai/v1"
+
+from langchain.chat_models import ChatOpenAI
+llm = ChatOpenAI(model="gpt-4")
+```
+
+## From LlamaIndex
+
+### Before
+
+```python
+from llama_index.llms import OpenAI
+
+llm = OpenAI(model="gpt-4", api_key="sk-...")
+```
+
+### After
+
+```python
+from llama_index.llms import OpenAI
+
+llm = OpenAI(
+    model="gpt-4",
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    api_base="https://api.savegate.ai/v1"
+)
+```
+
+## Migration Checklist
+
+<Steps>
+  <Step title="Get SaveGate API Key">
+    Sign up at [savegate.ai](https://savegate.ai/signin) and get your API key
+  </Step>
+
+  <Step title="Update Configuration">
+    Change your API key and base URL in your code or environment variables
+  </Step>
+
+  <Step title="Test in Development">
+    Run your application in development to ensure everything works
+  </Step>
+
+  <Step title="Monitor Usage">
+    Check the SaveGate dashboard to verify requests are flowing through
+  </Step>
+
+  <Step title="Deploy to Production">
+    Update your production environment variables and deploy
+  </Step>
+
+  <Step title="Optimize">
+    Use multi-model features and monitor costs to optimize further
+  </Step>
+</Steps>
+
+## Common Migration Patterns
+
+### Pattern 1: Feature Flag
+
+Test SaveGate alongside your current provider:
+
+```python
+import os
+from openai import OpenAI
+
+USE_SAVEGATE = os.getenv("USE_SAVEGATE", "false").lower() == "true"
+
+if USE_SAVEGATE:
+    client = OpenAI(
+        api_key=os.getenv("SAVEGATE_API_KEY"),
+        base_url="https://api.savegate.ai/v1"
+    )
+else:
+    client = OpenAI(
+        api_key=os.getenv("OPENAI_API_KEY")
+    )
+
+# Rest of your code remains the same
+response = client.chat.completions.create(...)
+```
+
+### Pattern 2: Gradual Rollout
+
+Migrate a percentage of requests:
+
+```python
+import random
+from openai import OpenAI
+
+def get_client():
+    # 20% of requests go to SaveGate
+    if random.random() < 0.2:
+        return OpenAI(
+            api_key="sk-savegate-xxxxxxxxxxxxx",
+            base_url="https://api.savegate.ai/v1"
+        )
+    else:
+        return OpenAI(api_key="sk-openai-...")
+
+client = get_client()
+```
+
+### Pattern 3: Fallback Strategy
+
+Use SaveGate with fallback to original provider:
+
+```python
+from openai import OpenAI
+
+def chat_with_fallback(message, model="gpt-4"):
+    # Try SaveGate first
+    try:
+        client = OpenAI(
+            api_key="sk-savegate-xxxxxxxxxxxxx",
+            base_url="https://api.savegate.ai/v1"
+        )
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": message}],
+            timeout=10
+        )
+        return response.choices[0].message.content
+
+    except Exception as e:
+        print(f"SaveGate failed, using fallback: {e}")
+
+        # Fallback to OpenAI
+        client = OpenAI(api_key="sk-openai-...")
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": message}]
+        )
+        return response.choices[0].message.content
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized" icon="key">
+    **Issue:** Invalid API key
+
+    **Solution:**
+    - Verify your SaveGate API key is correct
+    - Check that you're using `sk-savegate-` prefix
+    - Ensure the key hasn't been revoked
+  </Accordion>
+
+  <Accordion title="Model Not Found" icon="circle-xmark">
+    **Issue:** Model ID not recognized
+
+    **Solution:**
+    - Check the [models list](/concepts/models)
+    - Verify the model ID is correct
+    - Some model IDs may differ slightly from original providers
+  </Accordion>
+
+  <Accordion title="Different Response Format" icon="code">
+    **Issue:** Response structure seems different
+
+    **Solution:**
+    - SaveGate uses OpenAI-compatible response format
+    - Update your response parsing if using Anthropic SDK
+    - See [API reference](/api-reference/chat-completions) for details
+  </Accordion>
+
+  <Accordion title="Rate Limits (Rare)" icon="gauge">
+    **Issue:** Hit rate limits
+
+    **Solution:**
+    - This should be rare with SaveGate
+    - Implement exponential backoff
+    - Contact support if persistent
+  </Accordion>
+</AccordionGroup>
+
+## Cost Comparison Tool
+
+Estimate your savings after migration:
+
+```python
+def calculate_savings(monthly_tokens_in, monthly_tokens_out, model="gpt-4"):
+    # Pricing per 1K tokens
+    pricing = {
+        "gpt-4": {
+            "openai": {"input": 0.03, "output": 0.06},
+            "savegate": {"input": 0.021, "output": 0.042}
+        },
+        "gpt-4-turbo": {
+            "openai": {"input": 0.01, "output": 0.03},
+            "savegate": {"input": 0.007, "output": 0.021}
+        },
+        "claude-3-5-sonnet-20241022": {
+            "anthropic": {"input": 0.003, "output": 0.015},
+            "savegate": {"input": 0.002, "output": 0.010}
+        }
+    }
+
+    model_pricing = pricing.get(model)
+    if not model_pricing:
+        return "Model not found"
+
+    # Calculate costs (convert to thousands)
+    tokens_in_k = monthly_tokens_in / 1000
+    tokens_out_k = monthly_tokens_out / 1000
+
+    original_cost = (
+        tokens_in_k * list(model_pricing.values())[0]["input"] +
+        tokens_out_k * list(model_pricing.values())[0]["output"]
+    )
+
+    savegate_cost = (
+        tokens_in_k * model_pricing["savegate"]["input"] +
+        tokens_out_k * model_pricing["savegate"]["output"]
+    )
+
+    savings = original_cost - savegate_cost
+    savings_percent = (savings / original_cost) * 100
+
+    return {
+        "original_cost": f"${original_cost:.2f}",
+        "savegate_cost": f"${savegate_cost:.2f}",
+        "monthly_savings": f"${savings:.2f}",
+        "yearly_savings": f"${savings * 12:.2f}",
+        "savings_percent": f"{savings_percent:.1f}%"
+    }
+
+# Example: 10M input tokens, 5M output tokens per month
+result = calculate_savings(10_000_000, 5_000_000, "gpt-4-turbo")
+print(result)
+# {'original_cost': '$250.00', 'savegate_cost': '$175.00',
+#  'monthly_savings': '$75.00', 'yearly_savings': '$900.00',
+#  'savings_percent': '30.0%'}
+```
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="Migration Support" icon="envelope" href="mailto:support@savegate.ai">
+    Get help from our team with your migration
+  </Card>
+
+  <Card title="Community" icon="discord" href="https://discord.gg/savegate">
+    Ask questions in our Discord community
+  </Card>
+
+  <Card title="Documentation" icon="book" href="/quickstart">
+    Review our quickstart guide
+  </Card>
+
+  <Card title="API Reference" icon="code" href="/api-reference/chat-completions">
+    Explore the complete API docs
+  </Card>
+</CardGroup>

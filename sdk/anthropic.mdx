@@ -1,0 +1,58 @@
+---
+title: "Anthropic SDK"
+description: "Use SaveGate with the Anthropic Python SDK"
+---
+
+## Overview
+
+Access Claude models through SaveGate using the Anthropic SDK with just a base URL change.
+
+## Installation
+
+```bash
+pip install anthropic
+```
+
+## Basic Usage
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+message = client.messages.create(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": "Hello, Claude!"}
+    ]
+)
+
+print(message.content[0].text)
+```
+
+## Streaming
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+with client.messages.stream(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Tell me a story"}]
+) as stream:
+    for text in stream.text_stream:
+        print(text, end="", flush=True)
+```
+
+<Note>
+For most use cases, we recommend using the OpenAI SDK format for better multi-provider compatibility. The Anthropic SDK is great if you're specifically working with Claude models.
+</Note>

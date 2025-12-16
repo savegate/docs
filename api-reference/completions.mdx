@@ -1,0 +1,55 @@
+---
+title: "Completions"
+description: "Create text completions (legacy endpoint)"
+api: "POST https://api.savegate.ai/v1/completions"
+---
+
+## Overview
+
+<Warning>
+This is a legacy endpoint. We recommend using [Chat Completions](/api-reference/chat-completions) for all use cases.
+</Warning>
+
+Create a text completion with the specified model.
+
+## Request
+
+### Body Parameters
+
+<ParamField body="model" type="string" required>
+  Model ID to use
+</ParamField>
+
+<ParamField body="prompt" type="string or array" required>
+  The prompt(s) to generate completions for
+</ParamField>
+
+<ParamField body="max_tokens" type="integer" default="16">
+  Maximum tokens to generate
+</ParamField>
+
+<ParamField body="temperature" type="number" default="1">
+  Sampling temperature
+</ParamField>
+
+<ParamField body="stream" type="boolean" default="false">
+  Whether to stream responses
+</ParamField>
+
+## Example
+
+```bash
+curl https://api.savegate.ai/v1/completions \
+  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-3.5-turbo-instruct",
+    "prompt": "Say this is a test",
+    "max_tokens": 7,
+    "temperature": 0
+  }'
+```
+
+<Note>
+For new applications, use the Chat Completions endpoint instead.
+</Note>

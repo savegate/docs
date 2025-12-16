@@ -1,0 +1,152 @@
+---
+title: "Embeddings"
+description: "Create vector embeddings for text"
+api: "POST https://api.savegate.ai/v1/embeddings"
+---
+
+## Overview
+
+Create embeddings for text inputs. Useful for semantic search, clustering, and RAG applications.
+
+## Request
+
+### Body Parameters
+
+<ParamField body="model" type="string" required>
+  Embedding model ID (e.g., `text-embedding-3-small`, `text-embedding-ada-002`)
+</ParamField>
+
+<ParamField body="input" type="string or array" required>
+  Text or array of texts to embed
+</ParamField>
+
+<ParamField body="encoding_format" type="string" default="float">
+  Format for embeddings (`float` or `base64`)
+</ParamField>
+
+## Response
+
+<ResponseField name="object" type="string">
+  Object type (always `list`)
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of embedding objects
+
+  <Expandable title="embedding object">
+    <ResponseField name="object" type="string">
+      Always `embedding`
+    </ResponseField>
+
+    <ResponseField name="embedding" type="array">
+      The embedding vector
+    </ResponseField>
+
+    <ResponseField name="index" type="integer">
+      Index of the embedding
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  Model used
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  Token usage
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input="Your text here"
+)
+
+embedding = response.data[0].embedding
+print(f"Embedding dimension: {len(embedding)}")
+```
+
+```javascript Node.js
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'sk-savegate-xxxxxxxxxxxxx',
+  baseURL: 'https://api.savegate.ai/v1'
+});
+
+const response = await client.embeddings.create({
+  model: 'text-embedding-3-small',
+  input: 'Your text here'
+});
+
+const embedding = response.data[0].embedding;
+console.log(`Embedding dimension: ${embedding.length}`);
+```
+
+```bash cURL
+curl https://api.savegate.ai/v1/embeddings \
+  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "text-embedding-3-small",
+    "input": "Your text here"
+  }'
+```
+</CodeGroup>
+
+## Batch Embeddings
+
+```python
+# Embed multiple texts at once
+texts = [
+    "First document",
+    "Second document",
+    "Third document"
+]
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input=texts
+)
+
+embeddings = [item.embedding for item in response.data]
+print(f"Created {len(embeddings)} embeddings")
+```
+
+## Supported Models
+
+| Model | Dimension | Description |
+|-------|-----------|-------------|
+| `text-embedding-3-small` | 1536 | Latest, most efficient |
+| `text-embedding-3-large` | 3072 | Highest quality |
+| `text-embedding-ada-002` | 1536 | Previous generation |
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Semantic Search" icon="magnifying-glass">
+    Find relevant documents based on meaning
+  </Card>
+
+  <Card title="Clustering" icon="layer-group">
+    Group similar texts together
+  </Card>
+
+  <Card title="RAG Applications" icon="robot">
+    Retrieval-augmented generation
+  </Card>
+
+  <Card title="Recommendations" icon="star">
+    Content recommendation systems
+  </Card>
+</CardGroup>

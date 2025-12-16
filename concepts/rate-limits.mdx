@@ -1,0 +1,394 @@
+---
+title: "Rate Limits"
+description: "Understanding SaveGate's unlimited rate limits and best practices"
+---
+
+## Unlimited Rate Limits
+
+SaveGate removes the TPM (Tokens Per Minute) and RPM (Requests Per Minute) restrictions that plague direct provider APIs.
+
+<Card title="No More Rate Limit Errors" icon="infinity">
+  Scale your applications without worrying about hitting rate limits. SaveGate provides maximum available throughput for all models.
+</Card>
+
+## Why SaveGate Has No Limits
+
+<AccordionGroup>
+  <Accordion title="Enterprise Infrastructure" icon="server">
+    SaveGate uses enterprise-grade infrastructure with:
+    - Load balancing across multiple accounts
+    - Automatic failover
+    - Distributed request handling
+    - Optimized routing
+  </Accordion>
+
+  <Accordion title="Direct Provider Limits" icon="lock">
+    Direct provider limits (for reference):
+
+    **OpenAI Free Tier:**
+    - GPT-4: 40K TPM, 500 RPM
+    - GPT-3.5: 90K TPM, 3,500 RPM
+
+    **Anthropic Free Tier:**
+    - Claude: 50K TPM, 50 RPM
+
+    **SaveGate:**
+    - All models: Unlimited TPM/RPM ✨
+  </Accordion>
+
+  <Accordion title="How We Do It" icon="wand-sparkles">
+    1. **Pooled Accounts**: Shared infrastructure spreads load
+    2. **Smart Routing**: Requests distributed optimally
+    3. **Enterprise Agreements**: Higher base limits
+    4. **Automatic Scaling**: Dynamic resource allocation
+  </Accordion>
+</AccordionGroup>
+
+## Fair Usage
+
+While we don't impose hard limits, we ask for responsible usage:
+
+<CardGroup cols={2}>
+  <Card title="Reasonable Requests" icon="handshake">
+    Make requests at a reasonable pace for your use case. No need to throttle, but avoid intentional abuse.
+  </Card>
+
+  <Card title="No DDoS" icon="shield">
+    Don't use SaveGate for DDoS attacks or similar malicious activities. This violates our terms of service.
+  </Card>
+
+  <Card title="Production Use" icon="rocket">
+    SaveGate is built for production. Feel free to scale without worry.
+  </Card>
+
+  <Card title="Monitor Usage" icon="chart-line">
+    Track your usage in the dashboard to understand patterns and optimize costs.
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+Even without rate limits, follow these best practices:
+
+### 1. Implement Retry Logic
+
+Always implement exponential backoff for transient errors:
+
+<CodeGroup>
+```python Python
+import time
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-savegate-api-key",
+    base_url="https://api.savegate.ai/v1"
+)
+
+def chat_with_retry(message, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": message}]
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise
+            wait_time = 2 ** attempt  # Exponential backoff
+            time.sleep(wait_time)
+```
+
+```javascript Node.js
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'your-savegate-api-key',
+  baseURL: 'https://api.savegate.ai/v1'
+});
+
+async function chatWithRetry(message, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await client.chat.completions.create({
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: message }]
+      });
+      return response.choices[0].message.content;
+    } catch (error) {
+      if (attempt === maxRetries - 1) throw error;
+      const waitTime = Math.pow(2, attempt) * 1000;
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+  }
+}
+```
+</CodeGroup>
+
+### 2. Use Async/Concurrent Requests
+
+Process multiple requests efficiently:
+
+<CodeGroup>
+```python Python
+import asyncio
+from openai import AsyncOpenAI
+
+client = AsyncOpenAI(
+    api_key="your-savegate-api-key",
+    base_url="https://api.savegate.ai/v1"
+)
+
+async def process_multiple_messages(messages):
+    tasks = []
+    for msg in messages:
+        task = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": msg}]
+        )
+        tasks.append(task)
+
+    responses = await asyncio.gather(*tasks)
+    return [r.choices[0].message.content for r in responses]
+
+# Usage
+messages = ["Message 1", "Message 2", "Message 3"]
+results = asyncio.run(process_multiple_messages(messages))
+```
+
+```javascript Node.js
+async function processMultipleMessages(messages) {
+  const promises = messages.map(msg =>
+    client.chat.completions.create({
+      model: 'gpt-4',
+      messages: [{ role: 'user', content: msg }]
+    })
+  );
+
+  const responses = await Promise.all(promises);
+  return responses.map(r => r.choices[0].message.content);
+}
+
+// Usage
+const messages = ['Message 1', 'Message 2', 'Message 3'];
+const results = await processMultipleMessages(messages);
+```
+</CodeGroup>
+
+### 3. Batch When Possible
+
+For compatible use cases, batch multiple items in a single request:
+
+```python
+# Instead of multiple requests:
+for item in items:
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": f"Process: {item}"}]
+    )
+
+# Batch in one request:
+batch_content = "\n".join([f"{i}. {item}" for i, item in enumerate(items)])
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": f"Process these items:\n{batch_content}"}]
+)
+```
+
+### 4. Monitor Your Usage
+
+Keep track of your API usage:
+
+<Steps>
+  <Step title="Check Dashboard">
+    View real-time usage statistics in your [SaveGate Dashboard](https://savegate.ai/signin)
+  </Step>
+  <Step title="Set Alerts">
+    Configure alerts for unusual usage patterns or budget thresholds
+  </Step>
+  <Step title="Analyze Patterns">
+    Review usage trends to optimize your application
+  </Step>
+</Steps>
+
+## Streaming Responses
+
+Streaming is especially valuable without rate limits:
+
+<CodeGroup>
+```python Python
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True
+)
+
+for chunk in response:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
+
+```javascript Node.js
+const stream = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Tell me a story' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  if (chunk.choices[0]?.delta?.content) {
+    process.stdout.write(chunk.choices[0].delta.content);
+  }
+}
+```
+</CodeGroup>
+
+## Performance Metrics
+
+SaveGate delivers excellent performance:
+
+<CardGroup cols={2}>
+  <Card title="Response Time" icon="clock">
+    **150ms average** to first token
+
+    Faster than most direct API calls due to optimized routing
+  </Card>
+
+  <Card title="Throughput" icon="gauge-high">
+    **10M+ requests/day**
+
+    Proven scale with enterprise customers
+  </Card>
+
+  <Card title="Uptime" icon="circle-check">
+    **99.9% SLA**
+
+    Automatic failover ensures reliability
+  </Card>
+
+  <Card title="Latency" icon="timer">
+    **Under 50ms p99**
+
+    Consistent performance even at scale
+  </Card>
+</CardGroup>
+
+## Handling Errors
+
+Even without rate limits, handle errors gracefully:
+
+<CodeGroup>
+```python Python
+from openai import OpenAI, APIError, APIConnectionError, RateLimitError
+
+client = OpenAI(
+    api_key="your-savegate-api-key",
+    base_url="https://api.savegate.ai/v1"
+)
+
+try:
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": "Hello"}]
+    )
+except RateLimitError as e:
+    # Should be rare with SaveGate
+    print(f"Rate limit hit (unusual): {e}")
+except APIConnectionError as e:
+    # Network error
+    print(f"Connection error: {e}")
+except APIError as e:
+    # Other API errors
+    print(f"API error: {e}")
+```
+
+```javascript Node.js
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'your-savegate-api-key',
+  baseURL: 'https://api.savegate.ai/v1'
+});
+
+try {
+  const response = await client.chat.completions.create({
+    model: 'gpt-4',
+    messages: [{ role: 'user', content: 'Hello' }]
+  });
+} catch (error) {
+  if (error.status === 429) {
+    // Rate limit (rare with SaveGate)
+    console.log('Rate limit hit:', error);
+  } else if (error.status === 500) {
+    // Server error
+    console.log('Server error:', error);
+  } else {
+    console.log('Error:', error);
+  }
+}
+```
+</CodeGroup>
+
+## Enterprise Features
+
+For enterprise customers, we offer additional features:
+
+- **Dedicated Capacity**: Reserved throughput for your applications
+- **Custom Limits**: Set your own internal rate limits
+- **Priority Routing**: Guaranteed low-latency access
+- **SLA Guarantees**: Contractual uptime commitments
+
+<Card
+  title="Contact Sales"
+  icon="envelope"
+  href="mailto:sales@savegate.ai"
+>
+  Learn about enterprise features and custom configurations
+</Card>
+
+## Migration from Rate-Limited APIs
+
+If you're migrating from rate-limited APIs:
+
+<Accordion title="Remove Throttling Code">
+  You can safely remove rate limiting and throttling code:
+
+  ```python
+  # Before (with rate limiting)
+  rate_limiter = RateLimiter(max_requests=10, time_window=60)
+
+  for item in items:
+      rate_limiter.wait_if_needed()  # Not needed with SaveGate!
+      response = client.chat.completions.create(...)
+
+  # After (with SaveGate)
+  for item in items:
+      response = client.chat.completions.create(...)
+  ```
+</Accordion>
+
+<Accordion title="Simplify Request Queues">
+  Complex queuing systems can be simplified:
+
+  ```python
+  # Before (with queuing)
+  request_queue = Queue(maxsize=100)
+  # Complex queue management...
+
+  # After (with SaveGate)
+  # Just make requests directly!
+  responses = await asyncio.gather(*[
+      client.chat.completions.create(...) for item in items
+  ])
+  ```
+</Accordion>
+
+## Questions?
+
+<Card
+  title="Need Help?"
+  icon="question"
+  href="mailto:support@savegate.ai"
+>
+  Contact our support team if you have questions about rate limits or scaling
+</Card>

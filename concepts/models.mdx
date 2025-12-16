@@ -1,0 +1,320 @@
+---
+title: "Supported Models"
+description: "Complete list of AI models available through SaveGate"
+---
+
+## Overview
+
+SaveGate provides access to 50+ state-of-the-art AI models from leading providers. All models are accessible through a unified API using the same authentication and request format.
+
+## OpenAI Models
+
+### GPT-4 Family
+
+<CardGroup cols={2}>
+  <Card title="GPT-4" icon="brain">
+    **Model ID:** `gpt-4`
+
+    - Most capable GPT-4 model
+    - Best for complex reasoning
+    - Context: 8K tokens
+  </Card>
+
+  <Card title="GPT-4 Turbo" icon="bolt">
+    **Model ID:** `gpt-4-turbo`, `gpt-4-turbo-preview`
+
+    - Faster and cheaper than GPT-4
+    - Context: 128K tokens
+    - JSON mode support
+  </Card>
+
+  <Card title="GPT-4o" icon="eye">
+    **Model ID:** `gpt-4o`, `gpt-4o-mini`
+
+    - Multimodal (text + vision)
+    - Fast and efficient
+    - Context: 128K tokens
+  </Card>
+
+  <Card title="O1 Series" icon="graduation-cap">
+    **Model IDs:** `o1-preview`, `o1-mini`
+
+    - Advanced reasoning
+    - Best for complex problems
+    - Extended thinking time
+  </Card>
+</CardGroup>
+
+### GPT-3.5 Family
+
+| Model ID | Context | Best For |
+|----------|---------|----------|
+| `gpt-3.5-turbo` | 16K | General tasks, cost-effective |
+| `gpt-3.5-turbo-16k` | 16K | Longer conversations |
+
+## Anthropic Models
+
+### Claude 3 Family
+
+<CardGroup cols={2}>
+  <Card title="Claude 3.5 Sonnet" icon="sparkles">
+    **Model ID:** `claude-3-5-sonnet-20241022`
+
+    - Latest and most capable
+    - Best balance of speed/capability
+    - Context: 200K tokens
+    - Excellent for coding
+  </Card>
+
+  <Card title="Claude 3 Opus" icon="crown">
+    **Model ID:** `claude-3-opus-20240229`
+
+    - Most capable Claude model
+    - Best for complex tasks
+    - Context: 200K tokens
+  </Card>
+
+  <Card title="Claude 3 Sonnet" icon="star">
+    **Model ID:** `claude-3-sonnet-20240229`
+
+    - Balanced performance
+    - Good for most tasks
+    - Context: 200K tokens
+  </Card>
+
+  <Card title="Claude 3 Haiku" icon="feather">
+    **Model ID:** `claude-3-haiku-20240307`
+
+    - Fastest Claude model
+    - Most cost-effective
+    - Context: 200K tokens
+  </Card>
+</CardGroup>
+
+## Google Models
+
+### Gemini Family
+
+<CardGroup cols={2}>
+  <Card title="Gemini 1.5 Pro" icon="google">
+    **Model ID:** `gemini-1.5-pro`
+
+    - Multimodal capabilities
+    - Context: 1M tokens
+    - Best for long context
+  </Card>
+
+  <Card title="Gemini 1.5 Flash" icon="bolt">
+    **Model ID:** `gemini-1.5-flash`
+
+    - Fast and efficient
+    - Context: 1M tokens
+    - Cost-effective
+  </Card>
+
+  <Card title="Gemini Pro" icon="star">
+    **Model ID:** `gemini-pro`
+
+    - General purpose
+    - Good performance
+    - Reliable choice
+  </Card>
+
+  <Card title="Gemini Pro Vision" icon="eye">
+    **Model ID:** `gemini-pro-vision`
+
+    - Multimodal (text + images)
+    - Vision understanding
+    - Creative tasks
+  </Card>
+</CardGroup>
+
+## Meta Models
+
+### Llama 3 Family
+
+| Model ID | Size | Context | Best For |
+|----------|------|---------|----------|
+| `meta-llama/llama-3-70b-instruct` | 70B | 8K | General tasks, reasoning |
+| `meta-llama/llama-3-8b-instruct` | 8B | 8K | Fast, cost-effective |
+| `meta-llama/llama-2-70b-chat` | 70B | 4K | Conversations |
+| `meta-llama/llama-2-13b-chat` | 13B | 4K | Lightweight chat |
+
+## Mistral Models
+
+<CardGroup cols={2}>
+  <Card title="Mistral Large" icon="tower-broadcast">
+    **Model ID:** `mistral-large-latest`
+
+    - Most capable Mistral model
+    - Multilingual support
+    - Function calling
+  </Card>
+
+  <Card title="Mistral Medium" icon="signal">
+    **Model ID:** `mistral-medium-latest`
+
+    - Balanced performance
+    - Good for most tasks
+    - Cost-effective
+  </Card>
+
+  <Card title="Mistral Small" icon="mobile">
+    **Model ID:** `mistral-small-latest`
+
+    - Fast and lightweight
+    - Simple tasks
+    - Most affordable
+  </Card>
+
+  <Card title="Mixtral 8x7B" icon="layer-group">
+    **Model ID:** `mixtral-8x7b-instruct`
+
+    - Mixture of Experts
+    - Strong performance
+    - Open weights
+  </Card>
+</CardGroup>
+
+## Model Selection Guide
+
+### By Use Case
+
+<Tabs>
+  <Tab title="Coding">
+    **Best Models:**
+    1. `claude-3-5-sonnet-20241022` - Best overall
+    2. `gpt-4-turbo` - Strong alternative
+    3. `claude-3-opus-20240229` - Complex problems
+
+    **Why:** Advanced reasoning, code understanding, and generation
+  </Tab>
+
+  <Tab title="Writing">
+    **Best Models:**
+    1. `gpt-4` - Creative writing
+    2. `claude-3-opus-20240229` - Long-form content
+    3. `claude-3-sonnet-20240229` - Balanced quality
+
+    **Why:** Natural language generation, creativity, coherence
+  </Tab>
+
+  <Tab title="Analysis">
+    **Best Models:**
+    1. `o1-preview` - Complex reasoning
+    2. `gpt-4-turbo` - Data analysis
+    3. `claude-3-opus-20240229` - Document analysis
+
+    **Why:** Deep reasoning, understanding, insights
+  </Tab>
+
+  <Tab title="Chat">
+    **Best Models:**
+    1. `gpt-4o` - Multimodal chat
+    2. `claude-3-sonnet-20240229` - Conversational
+    3. `gpt-3.5-turbo` - Cost-effective
+
+    **Why:** Fast responses, natural conversation, affordable
+  </Tab>
+
+  <Tab title="Long Context">
+    **Best Models:**
+    1. `gemini-1.5-pro` - 1M tokens
+    2. `claude-3-5-sonnet-20241022` - 200K tokens
+    3. `gpt-4-turbo` - 128K tokens
+
+    **Why:** Large context windows for extensive documents
+  </Tab>
+</Tabs>
+
+### By Budget
+
+<AccordionGroup>
+  <Accordion title="Premium (Best Performance)" icon="crown">
+    - `o1-preview` - Advanced reasoning
+    - `claude-3-opus-20240229` - Most capable Claude
+    - `gpt-4` - Original GPT-4
+
+    **Use when:** Quality is critical, complex tasks
+  </Accordion>
+
+  <Accordion title="Balanced (Good Value)" icon="scale-balanced">
+    - `claude-3-5-sonnet-20241022` - Best overall value
+    - `gpt-4-turbo` - Fast and capable
+    - `gemini-1.5-pro` - Long context
+
+    **Use when:** Need quality at reasonable cost
+  </Accordion>
+
+  <Accordion title="Budget (Cost-Effective)" icon="piggy-bank">
+    - `gpt-3.5-turbo` - Fast and cheap
+    - `claude-3-haiku-20240307` - Fastest Claude
+    - `gemini-1.5-flash` - Fast Gemini
+    - `mistral-small-latest` - Affordable
+
+    **Use when:** Simple tasks, high volume
+  </Accordion>
+</AccordionGroup>
+
+## Model Capabilities
+
+### Function Calling
+
+Models that support function/tool calling:
+
+- ✅ All GPT-4 models
+- ✅ GPT-3.5 Turbo
+- ✅ Claude 3 family
+- ✅ Mistral Large
+- ✅ Gemini Pro
+
+### Vision (Multimodal)
+
+Models that support image understanding:
+
+- ✅ GPT-4o, GPT-4o Mini
+- ✅ Claude 3 family (all models)
+- ✅ Gemini Pro Vision
+- ✅ Gemini 1.5 Pro
+
+### JSON Mode
+
+Models with guaranteed JSON output:
+
+- ✅ GPT-4 Turbo
+- ✅ GPT-3.5 Turbo
+- ✅ Gemini 1.5 Pro
+
+## Using Models
+
+Simply specify the model ID in your API request:
+
+<CodeGroup>
+```python Python
+response = client.chat.completions.create(
+    model="claude-3-5-sonnet-20241022",  # Specify model here
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+```javascript Node.js
+const response = await client.chat.completions.create({
+  model: 'gpt-4-turbo',  // Specify model here
+  messages: [{ role: 'user', content: 'Hello!' }]
+});
+```
+</CodeGroup>
+
+## Model Updates
+
+SaveGate automatically updates model versions to the latest stable releases:
+
+- `gpt-4` → Latest GPT-4 version
+- `claude-3-5-sonnet-latest` → Latest Claude 3.5 Sonnet
+- `gemini-pro` → Latest Gemini Pro
+
+For version pinning, use specific model IDs with dates (e.g., `claude-3-5-sonnet-20241022`).
+
+<Note>
+Check the [pricing page](/concepts/pricing) for detailed cost information for each model.
+</Note>

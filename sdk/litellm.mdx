@@ -1,0 +1,574 @@
+---
+title: "LiteLLM Integration"
+description: "Use SaveGate with LiteLLM for unified multi-provider access"
+---
+
+## Overview
+
+SaveGate is fully compatible with [LiteLLM](https://github.com/BerriAI/litellm), making it easy to use multiple AI providers through a single, unified interface. Simply point LiteLLM to SaveGate's API endpoint.
+
+<Card title="Why Use LiteLLM with SaveGate?" icon="layer-group">
+  LiteLLM provides a unified interface across providers, while SaveGate removes rate limits and reduces costs by 30-50%. Together, they're a powerful combination.
+</Card>
+
+## Installation
+
+Install LiteLLM via pip:
+
+```bash
+pip install litellm
+```
+
+## Basic Usage
+
+### Method 1: Set API Base Globally
+
+<CodeGroup>
+```python Set Global Config
+import litellm
+
+# Configure SaveGate as the API base
+litellm.api_base = "https://api.savegate.ai/v1"
+litellm.api_key = "sk-savegate-xxxxxxxxxxxxx"
+
+# Now use LiteLLM as normal
+response = litellm.completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+```python Environment Variables
+import os
+import litellm
+
+# Set via environment variables
+os.environ["OPENAI_API_BASE"] = "https://api.savegate.ai/v1"
+os.environ["OPENAI_API_KEY"] = "sk-savegate-xxxxxxxxxxxxx"
+
+response = litellm.completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+</CodeGroup>
+
+### Method 2: Per-Request Configuration
+
+```python
+import litellm
+
+response = litellm.completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}],
+    api_base="https://api.savegate.ai/v1",
+    api_key="sk-savegate-xxxxxxxxxxxxx"
+)
+```
+
+## Using Different Models
+
+LiteLLM with SaveGate supports all major providers:
+
+<Tabs>
+  <Tab title="OpenAI">
+    ```python
+    import litellm
+
+    litellm.api_base = "https://api.savegate.ai/v1"
+    litellm.api_key = "your-savegate-api-key"
+
+    # GPT-4 Turbo
+    response = litellm.completion(
+        model="gpt-4-turbo",
+        messages=[{"role": "user", "content": "Explain quantum computing"}]
+    )
+
+    # GPT-3.5 Turbo
+    response = litellm.completion(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": "Hello!"}]
+    )
+
+    # O1
+    response = litellm.completion(
+        model="o1-preview",
+        messages=[{"role": "user", "content": "Solve this complex problem..."}]
+    )
+    ```
+  </Tab>
+
+  <Tab title="Anthropic (Claude)">
+    ```python
+    # Claude 3.5 Sonnet
+    response = litellm.completion(
+        model="claude-3-5-sonnet-20241022",
+        messages=[{"role": "user", "content": "Write a Python function"}]
+    )
+
+    # Claude 3 Opus
+    response = litellm.completion(
+        model="claude-3-opus-20240229",
+        messages=[{"role": "user", "content": "Analyze this data..."}]
+    )
+
+    # Claude 3 Haiku (fast & cheap)
+    response = litellm.completion(
+        model="claude-3-haiku-20240307",
+        messages=[{"role": "user", "content": "Quick question..."}]
+    )
+    ```
+  </Tab>
+
+  <Tab title="Google (Gemini)">
+    ```python
+    # Gemini 1.5 Pro
+    response = litellm.completion(
+        model="gemini-1.5-pro",
+        messages=[{"role": "user", "content": "Summarize this document..."}]
+    )
+
+    # Gemini 1.5 Flash
+    response = litellm.completion(
+        model="gemini-1.5-flash",
+        messages=[{"role": "user", "content": "Quick response needed"}]
+    )
+
+    # Gemini Pro
+    response = litellm.completion(
+        model="gemini-pro",
+        messages=[{"role": "user", "content": "General question"}]
+    )
+    ```
+  </Tab>
+
+  <Tab title="Meta (Llama)">
+    ```python
+    # Llama 3 70B
+    response = litellm.completion(
+        model="meta-llama/llama-3-70b-instruct",
+        messages=[{"role": "user", "content": "Explain machine learning"}]
+    )
+
+    # Llama 3 8B
+    response = litellm.completion(
+        model="meta-llama/llama-3-8b-instruct",
+        messages=[{"role": "user", "content": "Fast response"}]
+    )
+    ```
+  </Tab>
+</Tabs>
+
+## Streaming Responses
+
+LiteLLM streaming works seamlessly with SaveGate:
+
+```python
+import litellm
+
+litellm.api_base = "https://api.savegate.ai/v1"
+litellm.api_key = "your-savegate-api-key"
+
+response = litellm.completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True
+)
+
+for chunk in response:
+    if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
+
+## Async Support
+
+Use LiteLLM's async functions for concurrent requests:
+
+```python
+import asyncio
+import litellm
+
+litellm.api_base = "https://api.savegate.ai/v1"
+litellm.api_key = "your-savegate-api-key"
+
+async def process_messages(messages):
+    tasks = []
+    for msg in messages:
+        task = litellm.acompletion(
+            model="gpt-4",
+            messages=[{"role": "user", "content": msg}]
+        )
+        tasks.append(task)
+
+    responses = await asyncio.gather(*tasks)
+    return [r.choices[0].message.content for r in responses]
+
+# Usage
+messages = ["Question 1", "Question 2", "Question 3"]
+results = asyncio.run(process_messages(messages))
+```
+
+## Router for Load Balancing
+
+Use LiteLLM's Router with SaveGate for advanced load balancing:
+
+```python
+from litellm import Router
+
+# Configure models with SaveGate
+model_list = [
+    {
+        "model_name": "gpt-4",
+        "litellm_params": {
+            "model": "gpt-4",
+            "api_base": "https://api.savegate.ai/v1",
+            "api_key": "your-savegate-api-key"
+        }
+    },
+    {
+        "model_name": "claude-3-5",
+        "litellm_params": {
+            "model": "claude-3-5-sonnet-20241022",
+            "api_base": "https://api.savegate.ai/v1",
+            "api_key": "your-savegate-api-key"
+        }
+    }
+]
+
+router = Router(model_list=model_list)
+
+# Use the router
+response = router.completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+## Fallback Between Models
+
+Configure fallbacks to try alternative models if one fails:
+
+```python
+from litellm import Router
+
+router = Router(
+    model_list=[
+        {
+            "model_name": "primary",
+            "litellm_params": {
+                "model": "gpt-4-turbo",
+                "api_base": "https://api.savegate.ai/v1",
+                "api_key": "your-savegate-api-key"
+            }
+        },
+        {
+            "model_name": "fallback",
+            "litellm_params": {
+                "model": "claude-3-5-sonnet-20241022",
+                "api_base": "https://api.savegate.ai/v1",
+                "api_key": "your-savegate-api-key"
+            }
+        }
+    ],
+    fallbacks=[{"primary": ["fallback"]}]
+)
+
+# Will try GPT-4, fall back to Claude if it fails
+response = router.completion(
+    model="primary",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+## Caching with LiteLLM
+
+Enable caching to reduce costs and improve speed:
+
+```python
+import litellm
+from litellm import completion
+from litellm.caching import Cache
+
+litellm.cache = Cache()
+litellm.api_base = "https://api.savegate.ai/v1"
+litellm.api_key = "your-savegate-api-key"
+
+# First call - hits API
+response1 = completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "What is Python?"}]
+)
+
+# Second call - returns cached response
+response2 = completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "What is Python?"}]
+)
+```
+
+## Function Calling
+
+Use LiteLLM's function calling with SaveGate:
+
+```python
+import litellm
+
+litellm.api_base = "https://api.savegate.ai/v1"
+litellm.api_key = "your-savegate-api-key"
+
+functions = [
+    {
+        "name": "get_weather",
+        "description": "Get the current weather in a location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "The city and state, e.g. San Francisco, CA"
+                },
+                "unit": {
+                    "type": "string",
+                    "enum": ["celsius", "fahrenheit"]
+                }
+            },
+            "required": ["location"]
+        }
+    }
+]
+
+response = litellm.completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "What's the weather in Boston?"}],
+    functions=functions,
+    function_call="auto"
+)
+
+print(response.choices[0].message.function_call)
+```
+
+## Error Handling
+
+Handle errors gracefully:
+
+```python
+import litellm
+from litellm.exceptions import RateLimitError, AuthenticationError
+
+litellm.api_base = "https://api.savegate.ai/v1"
+litellm.api_key = "your-savegate-api-key"
+
+try:
+    response = litellm.completion(
+        model="gpt-4",
+        messages=[{"role": "user", "content": "Hello!"}]
+    )
+except RateLimitError as e:
+    print(f"Rate limit error: {e}")
+    # With SaveGate, this should be rare!
+except AuthenticationError as e:
+    print(f"Auth error: {e}")
+    # Check your API key
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Environment Variables" icon="key">
+    Store credentials securely:
+
+    ```python
+    import os
+    import litellm
+
+    litellm.api_base = os.getenv("SAVEGATE_API_BASE", "https://api.savegate.ai/v1")
+    litellm.api_key = os.getenv("SAVEGATE_API_KEY")
+    ```
+  </Accordion>
+
+  <Accordion title="Enable Logging" icon="file-lines">
+    Debug issues with LiteLLM's built-in logging:
+
+    ```python
+    import litellm
+
+    litellm.set_verbose = True  # Enable detailed logging
+    ```
+  </Accordion>
+
+  <Accordion title="Use Async for Scale" icon="bolt">
+    Process multiple requests concurrently:
+
+    ```python
+    import asyncio
+    import litellm
+
+    async def process_batch(prompts):
+        tasks = [
+            litellm.acompletion(
+                model="gpt-4",
+                messages=[{"role": "user", "content": p}]
+            )
+            for p in prompts
+        ]
+        return await asyncio.gather(*tasks)
+    ```
+  </Accordion>
+
+  <Accordion title="Monitor Costs" icon="chart-line">
+    Track usage through SaveGate dashboard:
+
+    - View costs by model
+    - Set budget alerts
+    - Analyze usage patterns
+    - Optimize model selection
+  </Accordion>
+</AccordionGroup>
+
+## Complete Example
+
+Here's a full example combining multiple features:
+
+```python
+import os
+import asyncio
+import litellm
+from litellm import Router
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Configure SaveGate
+litellm.api_base = "https://api.savegate.ai/v1"
+litellm.api_key = os.getenv("SAVEGATE_API_KEY")
+
+# Enable caching
+from litellm.caching import Cache
+litellm.cache = Cache()
+
+# Create router with multiple models
+router = Router(
+    model_list=[
+        {
+            "model_name": "fast",
+            "litellm_params": {
+                "model": "gpt-3.5-turbo",
+                "api_base": "https://api.savegate.ai/v1",
+                "api_key": os.getenv("SAVEGATE_API_KEY")
+            }
+        },
+        {
+            "model_name": "smart",
+            "litellm_params": {
+                "model": "gpt-4-turbo",
+                "api_base": "https://api.savegate.ai/v1",
+                "api_key": os.getenv("SAVEGATE_API_KEY")
+            }
+        },
+        {
+            "model_name": "code",
+            "litellm_params": {
+                "model": "claude-3-5-sonnet-20241022",
+                "api_base": "https://api.savegate.ai/v1",
+                "api_key": os.getenv("SAVEGATE_API_KEY")
+            }
+        }
+    ]
+)
+
+async def process_requests():
+    # Process multiple requests concurrently
+    tasks = [
+        router.acompletion(
+            model="fast",
+            messages=[{"role": "user", "content": "Quick question"}]
+        ),
+        router.acompletion(
+            model="smart",
+            messages=[{"role": "user", "content": "Complex analysis needed"}]
+        ),
+        router.acompletion(
+            model="code",
+            messages=[{"role": "user", "content": "Write a function"}]
+        )
+    ]
+
+    results = await asyncio.gather(*tasks)
+    return [r.choices[0].message.content for r in results]
+
+if __name__ == "__main__":
+    results = asyncio.run(process_requests())
+    for i, result in enumerate(results, 1):
+        print(f"\nResponse {i}:")
+        print(result)
+```
+
+## Migration Guide
+
+### From OpenAI SDK to LiteLLM + SaveGate
+
+<CodeGroup>
+```python Before (OpenAI SDK)
+from openai import OpenAI
+
+client = OpenAI(api_key="sk-openai-xxx")
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+```python After (LiteLLM + SaveGate)
+import litellm
+
+litellm.api_base = "https://api.savegate.ai/v1"
+litellm.api_key = "sk-savegate-xxx"
+
+response = litellm.completion(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+</CodeGroup>
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="LiteLLM Documentation"
+    icon="book"
+    href="https://docs.litellm.ai"
+  >
+    Official LiteLLM documentation
+  </Card>
+
+  <Card
+    title="LiteLLM GitHub"
+    icon="github"
+    href="https://github.com/BerriAI/litellm"
+  >
+    LiteLLM source code and examples
+  </Card>
+
+  <Card
+    title="SaveGate Models"
+    icon="list"
+    href="/concepts/models"
+  >
+    Complete list of supported models
+  </Card>
+
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/chat-completions"
+  >
+    SaveGate API documentation
+  </Card>
+</CardGroup>

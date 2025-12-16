@@ -1,0 +1,52 @@
+---
+title: "List Models"
+description: "Get list of available models"
+api: "GET https://api.savegate.ai/v1/models"
+---
+
+## Overview
+
+Retrieve a list of all available models.
+
+## Request
+
+```bash
+curl https://api.savegate.ai/v1/models \
+  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx"
+```
+
+## Response
+
+Returns a list of available model objects.
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "gpt-4",
+      "object": "model",
+      "created": 1678936877,
+      "owned_by": "openai"
+    },
+    {
+      "id": "claude-3-5-sonnet-20241022",
+      "object": "model",
+      "created": 1729551832,
+      "owned_by": "anthropic"
+    }
+    // ... more models
+  ]
+}
+```
+
+## Get Specific Model
+
+```bash
+curl https://api.savegate.ai/v1/models/gpt-4 \
+  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx"
+```
+
+<Note>
+See the [Models documentation](/concepts/models) for the complete list with details on capabilities and pricing.
+</Note>

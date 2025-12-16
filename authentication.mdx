@@ -1,0 +1,294 @@
+---
+title: "Authentication"
+description: "Learn how to authenticate your API requests with SaveGate"
+---
+
+## API Keys
+
+SaveGate uses API keys to authenticate requests. You can obtain your API key from the [SaveGate Dashboard](https://savegate.ai/signin) after creating an account.
+
+<Steps>
+  <Step title="Create Account">
+    Sign up at [savegate.ai/signin](https://savegate.ai/signin)
+  </Step>
+  <Step title="Generate API Key">
+    Navigate to the API Keys section in your dashboard and click "Create New Key"
+  </Step>
+  <Step title="Copy Your Key">
+    Copy the API key and store it securely - you won't be able to see it again
+  </Step>
+</Steps>
+
+## Using Your API Key
+
+Include your API key in the Authorization header of all API requests:
+
+<CodeGroup>
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+```
+
+```javascript Node.js
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'sk-savegate-xxxxxxxxxxxxx',
+  baseURL: 'https://api.savegate.ai/v1'
+});
+```
+
+```bash cURL
+curl https://api.savegate.ai/v1/chat/completions \
+  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+</CodeGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep Your API Key Secure" icon="lock">
+    - Never commit API keys to version control
+    - Use environment variables to store keys
+    - Rotate keys regularly
+    - Don't share keys in public forums or chat
+  </Accordion>
+
+  <Accordion title="Use Environment Variables" icon="file-code">
+    Store your API key in environment variables:
+
+    ```bash .env
+    SAVEGATE_API_KEY=sk-savegate-xxxxxxxxxxxxx
+    ```
+
+    Then load it in your code:
+
+    ```python Python
+    import os
+    from openai import OpenAI
+
+    client = OpenAI(
+        api_key=os.getenv("SAVEGATE_API_KEY"),
+        base_url="https://api.savegate.ai/v1"
+    )
+    ```
+
+    ```javascript Node.js
+    import OpenAI from 'openai';
+    import * as dotenv from 'dotenv';
+
+    dotenv.config();
+
+    const client = new OpenAI({
+      apiKey: process.env.SAVEGATE_API_KEY,
+      baseURL: 'https://api.savegate.ai/v1'
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Rotate Keys Regularly" icon="rotate">
+    - Generate a new API key periodically
+    - Update your applications with the new key
+    - Revoke the old key after migration
+    - Set up key rotation alerts in your dashboard
+  </Accordion>
+
+  <Accordion title="Monitor API Usage" icon="chart-line">
+    - Track API usage in your dashboard
+    - Set up billing alerts
+    - Monitor for unusual activity
+    - Review access logs regularly
+  </Accordion>
+</AccordionGroup>
+
+## API Key Format
+
+SaveGate API keys follow this format:
+
+```
+sk-savegate-[random-string]
+```
+
+- All keys start with `sk-savegate-`
+- The random string is 32 characters long
+- Keys are case-sensitive
+
+## Managing API Keys
+
+### Creating Additional Keys
+
+You can create multiple API keys for different applications or environments:
+
+1. Go to your [Dashboard](https://savegate.ai/signin)
+2. Navigate to API Keys
+3. Click "Create New Key"
+4. Give it a descriptive name (e.g., "Production App", "Development")
+5. Copy and store the key securely
+
+### Revoking Keys
+
+If an API key is compromised:
+
+1. Go to your Dashboard
+2. Navigate to API Keys
+3. Find the compromised key
+4. Click "Revoke" or the delete icon
+5. The key will be immediately deactivated
+
+<Warning>
+Revoking a key is permanent and will immediately stop all requests using that key. Make sure to update your applications before revoking active keys.
+</Warning>
+
+## Error Handling
+
+Common authentication errors and how to fix them:
+
+### 401 Unauthorized
+
+```json
+{
+  "error": {
+    "message": "Invalid API key",
+    "type": "invalid_request_error",
+    "code": "invalid_api_key"
+  }
+}
+```
+
+**Causes:**
+- API key is missing
+- API key is invalid or malformed
+- API key has been revoked
+
+**Solution:** Verify your API key is correct and has not been revoked.
+
+### 429 Rate Limit Exceeded
+
+```json
+{
+  "error": {
+    "message": "Rate limit exceeded",
+    "type": "rate_limit_error"
+  }
+}
+```
+
+**Causes:**
+- Too many requests in a short time period
+- Account limits exceeded
+
+**Solution:** Implement exponential backoff and retry logic. Check your rate limits in the dashboard.
+
+## Security Recommendations
+
+<CardGroup cols={2}>
+  <Card title="Use HTTPS Only" icon="lock">
+    Always use HTTPS when making API calls to protect your API key in transit.
+  </Card>
+
+  <Card title="Backend Only" icon="server">
+    Never expose API keys in client-side code (frontend JavaScript, mobile apps).
+  </Card>
+
+  <Card title="Principle of Least Privilege" icon="shield">
+    Use separate API keys for different environments and applications.
+  </Card>
+
+  <Card title="Monitor Activity" icon="eye">
+    Regularly review API usage logs for suspicious activity.
+  </Card>
+</CardGroup>
+
+## Example: Secure Setup
+
+Here's a complete example of a secure setup:
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    # config.py
+    import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    SAVEGATE_API_KEY = os.getenv("SAVEGATE_API_KEY")
+    if not SAVEGATE_API_KEY:
+        raise ValueError("SAVEGATE_API_KEY environment variable not set")
+
+    # main.py
+    from openai import OpenAI
+    from config import SAVEGATE_API_KEY
+
+    client = OpenAI(
+        api_key=SAVEGATE_API_KEY,
+        base_url="https://api.savegate.ai/v1"
+    )
+
+    def chat(message):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": message}]
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
+    ```
+  </Tab>
+
+  <Tab title="Node.js">
+    ```javascript
+    // config.js
+    import * as dotenv from 'dotenv';
+
+    dotenv.config();
+
+    if (!process.env.SAVEGATE_API_KEY) {
+      throw new Error('SAVEGATE_API_KEY environment variable not set');
+    }
+
+    export const SAVEGATE_API_KEY = process.env.SAVEGATE_API_KEY;
+
+    // main.js
+    import OpenAI from 'openai';
+    import { SAVEGATE_API_KEY } from './config.js';
+
+    const client = new OpenAI({
+      apiKey: SAVEGATE_API_KEY,
+      baseURL: 'https://api.savegate.ai/v1'
+    });
+
+    async function chat(message) {
+      try {
+        const response = await client.chat.completions.create({
+          model: 'gpt-4',
+          messages: [{ role: 'user', content: message }]
+        });
+        return response.choices[0].message.content;
+      } catch (error) {
+        console.error('Error:', error);
+        return null;
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Need Help?
+
+If you're having trouble with authentication:
+
+- Check our [troubleshooting guide](/guides/error-handling)
+- Contact support at [support@savegate.ai](mailto:support@savegate.ai)
+- Join our [Discord community](https://discord.gg/savegate)

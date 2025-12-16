@@ -1,0 +1,223 @@
+---
+title: "Error Handling"
+description: "Handle API errors gracefully in your applications"
+---
+
+## Common Errors
+
+### 401 Unauthorized
+
+```json
+{
+  "error": {
+    "message": "Invalid API key",
+    "type": "invalid_request_error",
+    "code": "invalid_api_key"
+  }
+}
+```
+
+**Cause:** Invalid or missing API key
+
+**Solution:** Check your API key is correct and properly set
+
+### 429 Rate Limit
+
+```json
+{
+  "error": {
+    "message": "Rate limit exceeded",
+    "type": "rate_limit_error"
+  }
+}
+```
+
+**Cause:** Too many requests (rare with SaveGate)
+
+**Solution:** Implement exponential backoff
+
+### 500 Server Error
+
+```json
+{
+  "error": {
+    "message": "Internal server error",
+    "type": "server_error"
+  }
+}
+```
+
+**Cause:** Temporary server issue
+
+**Solution:** Retry with exponential backoff
+
+## Retry Logic
+
+### Python
+
+```python
+import time
+from openai import OpenAI, APIError
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+def chat_with_retry(message, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": message}]
+            )
+            return response.choices[0].message.content
+
+        except APIError as e:
+            if attempt == max_retries - 1:
+                raise
+
+            wait_time = (2 ** attempt) + random.uniform(0, 1)
+            print(f"Retry {attempt + 1}/{max_retries} after {wait_time:.2f}s")
+            time.sleep(wait_time)
+
+# Usage
+try:
+    result = chat_with_retry("Hello!")
+    print(result)
+except Exception as e:
+    print(f"Failed after retries: {e}")
+```
+
+### Node.js
+
+```javascript
+async function chatWithRetry(message, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await client.chat.completions.create({
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: message }]
+      });
+      return response.choices[0].message.content;
+
+    } catch (error) {
+      if (attempt === maxRetries - 1) throw error;
+
+      const waitTime = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+      console.log(`Retry ${attempt + 1}/${maxRetries} after ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+  }
+}
+```
+
+## Timeout Handling
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1",
+    timeout=30.0  # 30 second timeout
+)
+
+try:
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": "Hello"}]
+    )
+except TimeoutError:
+    print("Request timed out")
+```
+
+## Validation
+
+```python
+def validate_response(response):
+    """Validate API response before using"""
+    if not response.choices:
+        raise ValueError("No choices in response")
+
+    if not response.choices[0].message.content:
+        raise ValueError("Empty response content")
+
+    if response.choices[0].finish_reason != "stop":
+        print(f"Warning: Unexpected finish reason: {response.choices[0].finish_reason}")
+
+    return response.choices[0].message.content
+
+# Usage
+response = client.chat.completions.create(...)
+content = validate_response(response)
+```
+
+## Production Error Handler
+
+```python
+import logging
+from typing import Optional
+
+logger = logging.getLogger(__name__)
+
+class SaveGateClient:
+    def __init__(self, api_key: str):
+        self.client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.savegate.ai/v1"
+        )
+
+    def chat(
+        self,
+        message: str,
+        model: str = "gpt-4",
+        max_retries: int = 3
+    ) -> Optional[str]:
+        """Production-ready chat with comprehensive error handling"""
+
+        for attempt in range(max_retries):
+            try:
+                response = self.client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": message}],
+                    timeout=30.0
+                )
+
+                # Validate response
+                if not response.choices:
+                    raise ValueError("Empty response")
+
+                content = response.choices[0].message.content
+                if not content:
+                    raise ValueError("No content in response")
+
+                logger.info(f"Success: {len(content)} chars")
+                return content
+
+            except TimeoutError:
+                logger.warning(f"Timeout on attempt {attempt + 1}")
+                if attempt == max_retries - 1:
+                    logger.error("Max retries reached on timeout")
+                    return None
+
+            except APIError as e:
+                logger.error(f"API error on attempt {attempt + 1}: {e}")
+                if attempt == max_retries - 1:
+                    logger.error("Max retries reached on API error")
+                    return None
+
+                # Exponential backoff
+                wait = 2 ** attempt
+                time.sleep(wait)
+
+            except Exception as e:
+                logger.exception(f"Unexpected error: {e}")
+                return None
+
+        return None
+```
+
+<Card title="API Reference" icon="code" href="/api-reference/chat-completions">
+  See detailed error codes and responses
+</Card>

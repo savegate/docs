@@ -1,0 +1,170 @@
+---
+title: "Python Examples"
+description: "Complete Python examples for using SaveGate"
+---
+
+## Installation
+
+```bash
+pip install openai  # or litellm, or anthropic
+```
+
+## Basic Chat
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+def chat(message, model="gpt-4"):
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": message}]
+    )
+    return response.choices[0].message.content
+
+# Usage
+result = chat("What is Python?")
+print(result)
+```
+
+## Conversation History
+
+```python
+def chat_conversation(messages, model="gpt-4"):
+    response = client.chat.completions.create(
+        model=model,
+        messages=messages
+    )
+    return response.choices[0].message.content
+
+# Usage
+conversation = [
+    {"role": "system", "content": "You are a helpful coding assistant."},
+    {"role": "user", "content": "How do I read a file in Python?"},
+]
+
+response = chat_conversation(conversation)
+print(response)
+
+# Continue conversation
+conversation.append({"role": "assistant", "content": response})
+conversation.append({"role": "user", "content": "Can you show me an example?"})
+
+response = chat_conversation(conversation)
+print(response)
+```
+
+## Async Processing
+
+```python
+import asyncio
+from openai import AsyncOpenAI
+
+client = AsyncOpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+async def process_multiple(prompts, model="gpt-4"):
+    tasks = [
+        client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        for prompt in prompts
+    ]
+    responses = await asyncio.gather(*tasks)
+    return [r.choices[0].message.content for r in responses]
+
+# Usage
+prompts = [
+    "What is Python?",
+    "What is JavaScript?",
+    "What is Go?"
+]
+
+results = asyncio.run(process_multiple(prompts))
+for prompt, result in zip(prompts, results):
+    print(f"Q: {prompt}\nA: {result}\n")
+```
+
+## Streaming with Callback
+
+```python
+def stream_chat(message, model="gpt-4", callback=None):
+    stream = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": message}],
+        stream=True
+    )
+
+    full_response = ""
+    for chunk in stream:
+        if chunk.choices[0].delta.content:
+            content = chunk.choices[0].delta.content
+            full_response += content
+            if callback:
+                callback(content)
+
+    return full_response
+
+# Usage
+def print_chunk(chunk):
+    print(chunk, end="", flush=True)
+
+response = stream_chat("Tell me a short story", callback=print_chunk)
+print("\n\nFull response:", response)
+```
+
+## Error Handling
+
+```python
+from openai import OpenAI, APIError, RateLimitError, APIConnectionError
+import time
+
+client = OpenAI(
+    api_key="sk-savegate-xxxxxxxxxxxxx",
+    base_url="https://api.savegate.ai/v1"
+)
+
+def chat_with_retry(message, model="gpt-4", max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": message}]
+            )
+            return response.choices[0].message.content
+
+        except RateLimitError as e:
+            if attempt == max_retries - 1:
+                raise
+            wait = 2 ** attempt
+            print(f"Rate limit hit. Waiting {wait}s...")
+            time.sleep(wait)
+
+        except APIConnectionError as e:
+            if attempt == max_retries - 1:
+                raise
+            print(f"Connection error. Retrying...")
+            time.sleep(1)
+
+        except APIError as e:
+            print(f"API error: {e}")
+            raise
+
+# Usage
+try:
+    result = chat_with_retry("Hello!")
+    print(result)
+except Exception as e:
+    print(f"Failed after retries: {e}")
+```
+
+<Card title="More Examples" icon="code" href="/examples/basic-chat">
+  See complete example applications
+</Card>

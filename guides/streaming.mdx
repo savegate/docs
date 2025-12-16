@@ -1,0 +1,80 @@
+---
+title: "Streaming Guide"
+description: "Best practices for implementing streaming responses"
+---
+
+## Benefits of Streaming
+
+- **Better UX**: Users see responses immediately
+- **Perceived Performance**: Feels faster even if total time is the same
+- **Progressive Display**: Long responses appear naturally
+- **Lower Memory**: Process chunks instead of waiting for full response
+
+## Implementation Guide
+
+See the [Streaming Examples](/examples/streaming) for complete code samples.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always Handle Errors" icon="shield">
+    Streams can fail mid-response. Always wrap streaming code in try-catch.
+
+    ```python
+    try:
+        for chunk in stream:
+            # Process chunk
+            pass
+    except Exception as e:
+        print(f"Stream error: {e}")
+    ```
+  </Accordion>
+
+  <Accordion title="Buffer for UI Updates" icon="database">
+    Don't update UI for every single chunk - buffer updates for performance.
+
+    ```javascript
+    let buffer = '';
+    const BUFFER_SIZE = 5;
+
+    for await (const chunk of stream) {
+      buffer += chunk.choices[0]?.delta?.content || '';
+      if (buffer.length >= BUFFER_SIZE) {
+        updateUI(buffer);
+        buffer = '';
+      }
+    }
+    // Flush remaining buffer
+    if (buffer) updateUI(buffer);
+    ```
+  </Accordion>
+
+  <Accordion title="Track Completion" icon="check">
+    Know when the stream is done to update UI state.
+
+    ```python
+    for chunk in stream:
+        if chunk.choices[0].finish_reason:
+            # Stream is done
+            break
+    ```
+  </Accordion>
+
+  <Accordion title="Store Full Response" icon="save">
+    Keep track of the complete response for later use.
+
+    ```python
+    full_response = ""
+    for chunk in stream:
+        if chunk.choices[0].delta.content:
+            content = chunk.choices[0].delta.content
+            full_response += content
+            print(content, end="")
+    # Now full_response contains complete text
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Card title="Full Examples" icon="code" href="/examples/streaming">
+  See complete streaming implementations
+</Card>
