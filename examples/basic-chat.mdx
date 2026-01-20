@@ -43,7 +43,7 @@ def chat_bot():
         # Get response from model
         try:
             response = client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-5.1",
                 messages=conversation,
                 temperature=0.7
             )
@@ -181,9 +181,10 @@ Let users choose the model:
 
 ```python
 MODELS = {
-    "1": {"name": "GPT-4", "id": "gpt-4"},
-    "2": {"name": "Claude 3.5 Sonnet", "id": "claude-3-5-sonnet-20241022"},
-    "3": {"name": "GPT-3.5 (Fast)", "id": "gpt-3.5-turbo"},
+    "1": {"name": "GPT-5.1", "id": "gpt-5.1"},
+    "2": {"name": "Claude Sonnet 4.5", "id": "claude-sonnet-4.5"},
+    "3": {"name": "GPT-5.1 Mini (Fast)", "id": "gpt-5.1-mini"},
+    "4": {"name": "O3 (Reasoning)", "id": "o3"},
 }
 
 def select_model():

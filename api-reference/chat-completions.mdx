@@ -18,7 +18,7 @@ Create a chat completion using any supported model.
 ### Body Parameters
 
 <ParamField body="model" type="string" required>
-  The model to use (e.g., `gpt-4`, `claude-3-5-sonnet-20241022`, `gemini-1.5-pro`)
+  The model to use (e.g., `gpt-5.1`, `claude-sonnet-4.5`, `gpt-4.2`, `o3`)
 </ParamField>
 
 <ParamField body="messages" type="array" required>
@@ -139,7 +139,7 @@ curl https://api.savegate.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx" \
   -d '{
-    "model": "gpt-4",
+    "model": "gpt-5.1",
     "messages": [
       {
         "role": "system",
@@ -163,7 +163,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-5.1",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "What is the capital of France?"}
@@ -183,7 +183,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: 'gpt-4',
+  model: 'gpt-5.1',
   messages: [
     { role: 'system', content: 'You are a helpful assistant.' },
     { role: 'user', content: 'What is the capital of France?' }
@@ -202,7 +202,7 @@ console.log(response.choices[0].message.content);
   "id": "chatcmpl-123",
   "object": "chat.completion",
   "created": 1677652288,
-  "model": "gpt-4",
+  "model": "gpt-5.1",
   "choices": [{
     "index": 0,
     "message": {
@@ -224,7 +224,7 @@ console.log(response.choices[0].message.content);
 <CodeGroup>
 ```python Python
 response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-5.1",
     messages=[{"role": "user", "content": "Tell me a story"}],
     stream=True
 )
@@ -236,7 +236,7 @@ for chunk in response:
 
 ```javascript Node.js
 const stream = await client.chat.completions.create({
-  model: 'gpt-4',
+  model: 'gpt-5.1',
   messages: [{ role: 'user', content: 'Tell me a story' }],
   stream: true
 });
@@ -270,7 +270,7 @@ functions = [
 ]
 
 response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-5.1",
     messages=[{"role": "user", "content": "What's the weather in Boston?"}],
     functions=functions,
     function_call="auto"
@@ -299,7 +299,7 @@ const functions = [
 ];
 
 const response = await client.chat.completions.create({
-  model: 'gpt-4',
+  model: 'gpt-5.1',
   messages: [{ role: 'user', content: "What's the weather in Boston?" }],
   functions: functions,
   function_call: 'auto'

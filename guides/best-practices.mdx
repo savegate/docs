@@ -53,7 +53,7 @@ description: "Guidelines for building production applications with SaveGate"
         user_input = user_input.strip()
 
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-5.1",
             messages=[{"role": "user", "content": user_input}]
         )
         return response.choices[0].message.content
@@ -79,7 +79,7 @@ description: "Guidelines for building production applications with SaveGate"
     async def process_batch(messages):
         tasks = [
             async_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-5.1",
                 messages=[{"role": "user", "content": msg}]
             )
             for msg in messages
@@ -128,10 +128,10 @@ description: "Guidelines for building production applications with SaveGate"
   <Accordion title="Choose the Right Model" icon="brain">
     Use cheaper models when appropriate:
 
-    - **Simple tasks**: `gpt-3.5-turbo`, `claude-3-haiku`
-    - **Complex reasoning**: `gpt-4`, `claude-3-5-sonnet`
-    - **Code**: `claude-3-5-sonnet`
-    - **Long context**: `gemini-1.5-pro`
+    - **Simple tasks**: `gpt-4.1-nano`, `claude-3.5-haiku`
+    - **Complex reasoning**: `gpt-5.1`, `claude-sonnet-4.5`, `o3`
+    - **Code**: `claude-sonnet-4.5`, `gpt-5.1`
+    - **Fast & affordable**: `gpt-5.1-mini`, `gpt-4.2-mini`
   </Accordion>
 
   <Accordion title="Optimize Prompts" icon="wand-sparkles">
@@ -278,7 +278,7 @@ class ProductionSaveGateClient:
     def chat(
         self,
         message: str,
-        model: str = "gpt-4",
+        model: str = "gpt-5.1",
         max_tokens: int = 1000,
         stream: bool = False,
         max_retries: int = 3
@@ -344,7 +344,7 @@ response = client.chat("Hello!")
 # With options
 response = client.chat(
     "Explain AI",
-    model="gpt-3.5-turbo",  # Cheaper model
+    model="gpt-5.1-mini",  # Cheaper model
     max_tokens=500  # Limit cost
 )
 

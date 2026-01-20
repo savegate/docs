@@ -35,7 +35,7 @@ Choose your preferred method to make API calls:
     )
 
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-5.1",
         messages=[
             {"role": "user", "content": "Hello! How are you?"}
         ]
@@ -54,7 +54,7 @@ Choose your preferred method to make API calls:
     litellm.api_key = "your-savegate-api-key"
 
     response = litellm.completion(
-        model="gpt-4",
+        model="gpt-5.1",
         messages=[
             {"role": "user", "content": "Hello! How are you?"}
         ]
@@ -75,7 +75,7 @@ Choose your preferred method to make API calls:
 
     async function main() {
       const response = await client.chat.completions.create({
-        model: 'gpt-4',
+        model: 'gpt-5.1',
         messages: [
           { role: 'user', content: 'Hello! How are you?' }
         ]
@@ -94,7 +94,7 @@ Choose your preferred method to make API calls:
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer your-savegate-api-key" \
       -d '{
-        "model": "gpt-4",
+        "model": "gpt-5.1",
         "messages": [
           {"role": "user", "content": "Hello! How are you?"}
         ]
@@ -132,21 +132,21 @@ SaveGate supports 50+ models. Here's how to use models from different providers:
 <Tabs>
   <Tab title="OpenAI Models">
     ```python
-    # GPT-4
+    # GPT-5.1
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-5.1",
         messages=[{"role": "user", "content": "Hello!"}]
     )
 
-    # GPT-4 Turbo
+    # GPT-4.2
     response = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-4.2",
         messages=[{"role": "user", "content": "Hello!"}]
     )
 
-    # O1
+    # O3 (Reasoning)
     response = client.chat.completions.create(
-        model="o1-preview",
+        model="o3",
         messages=[{"role": "user", "content": "Solve this problem..."}]
     )
     ```
@@ -154,15 +154,21 @@ SaveGate supports 50+ models. Here's how to use models from different providers:
 
   <Tab title="Anthropic Models">
     ```python
-    # Claude 3.5 Sonnet
+    # Claude Sonnet 4.5
     response = client.chat.completions.create(
-        model="claude-3-5-sonnet-20241022",
+        model="claude-sonnet-4.5",
         messages=[{"role": "user", "content": "Hello!"}]
     )
 
-    # Claude 3 Opus
+    # Claude Opus 4.5
     response = client.chat.completions.create(
-        model="claude-3-opus-20240229",
+        model="claude-opus-4.5",
+        messages=[{"role": "user", "content": "Hello!"}]
+    )
+
+    # Claude 3.7 Sonnet
+    response = client.chat.completions.create(
+        model="claude-3.7-sonnet",
         messages=[{"role": "user", "content": "Hello!"}]
     )
     ```
@@ -202,7 +208,7 @@ Get real-time responses with streaming:
 <CodeGroup>
 ```python Python
 response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-5.1",
     messages=[{"role": "user", "content": "Tell me a story"}],
     stream=True
 )
@@ -214,7 +220,7 @@ for chunk in response:
 
 ```javascript Node.js
 const stream = await client.chat.completions.create({
-  model: 'gpt-4',
+  model: 'gpt-5.1',
   messages: [{ role: 'user', content: 'Tell me a story' }],
   stream: true
 });

@@ -21,11 +21,11 @@ class ModelRouter:
     """Route requests to appropriate models based on task type"""
 
     MODELS = {
-        "fast": "gpt-3.5-turbo",
-        "smart": "gpt-4-turbo",
-        "code": "claude-3-5-sonnet-20241022",
-        "long": "gemini-1.5-pro",
-        "cheap": "claude-3-haiku-20240307"
+        "fast": "gpt-5.1-mini",
+        "smart": "gpt-5.1",
+        "code": "claude-sonnet-4.5",
+        "reasoning": "o3",
+        "cheap": "gpt-4.1-nano"
     }
 
     def chat(self, message, task_type="fast"):
@@ -58,9 +58,9 @@ def chat_with_fallback(message, models=None):
     """Try multiple models in order until one succeeds"""
     if models is None:
         models = [
-            "gpt-4-turbo",
-            "claude-3-5-sonnet-20241022",
-            "gpt-3.5-turbo"
+            "gpt-5.1",
+            "claude-sonnet-4.5",
+            "gpt-4.2"
         ]
 
     last_error = None
@@ -104,7 +104,7 @@ async_client = AsyncOpenAI(
 async def get_consensus(question, models=None):
     """Get responses from multiple models and synthesize"""
     if models is None:
-        models = ["gpt-4", "claude-3-5-sonnet-20241022", "gemini-1.5-pro"]
+        models = ["gpt-5.1", "claude-sonnet-4.5", "gpt-4.2"]
 
     # Get all responses concurrently
     tasks = [
@@ -130,7 +130,7 @@ async def get_consensus(question, models=None):
     """
 
     synthesis = await async_client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-5.1",
         messages=[{"role": "user", "content": synthesis_prompt}]
     )
 
@@ -151,8 +151,8 @@ Use cheaper models when possible, upgrade when needed:
 ```python
 class CostOptimizedChat:
     def __init__(self):
-        self.cheap_model = "gpt-3.5-turbo"
-        self.premium_model = "gpt-4"
+        self.cheap_model = "gpt-4.1-nano"
+        self.premium_model = "gpt-5.1"
 
     def chat(self, message, force_premium=False):
         # Try cheap model first
@@ -215,21 +215,21 @@ def content_generation_pipeline(topic):
     # Stage 1: Brainstorm with fast model
     print("Brainstorming...")
     brainstorm = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-5.1-mini",
         messages=[{"role": "user", "content": f"Give me 5 key points about: {topic}"}]
     ).choices[0].message.content
 
     # Stage 2: Write with quality model
     print("Writing...")
     draft = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-5.1",
         messages=[{"role": "user", "content": f"Write a detailed article using these points:\n{brainstorm}"}]
     ).choices[0].message.content
 
     # Stage 3: Edit with Claude (excellent at editing)
     print("Editing...")
     final = client.chat.completions.create(
-        model="claude-3-5-sonnet-20241022",
+        model="claude-sonnet-4.5",
         messages=[{"role": "user", "content": f"Edit and improve this article:\n{draft}"}]
     ).choices[0].message.content
 

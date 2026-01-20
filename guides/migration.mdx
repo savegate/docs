@@ -36,7 +36,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-5.1",
     messages=[{"role": "user", "content": "Hello!"}]
 )
 ```
@@ -50,7 +50,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-5.1",
     messages=[{"role": "user", "content": "Hello!"}]
 )
 ```
@@ -105,7 +105,7 @@ client = Anthropic(
 )
 
 message = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
+    model="claude-sonnet-4.5",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Hello"}]
 )
@@ -120,7 +120,7 @@ client = Anthropic(
 )
 
 message = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
+    model="claude-sonnet-4.5",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Hello"}]
 )
@@ -135,7 +135,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="claude-3-5-sonnet-20241022",
+    model="claude-sonnet-4.5",
     messages=[{"role": "user", "content": "Hello"}]
 )
 ```
@@ -175,7 +175,7 @@ response = client.chat.completions.create(
 from langchain.chat_models import ChatOpenAI
 
 llm = ChatOpenAI(
-    model="gpt-4",
+    model="gpt-5.1",
     openai_api_key="sk-..."
 )
 ```
@@ -186,7 +186,7 @@ llm = ChatOpenAI(
 from langchain.chat_models import ChatOpenAI
 
 llm = ChatOpenAI(
-    model="gpt-4",
+    model="gpt-5.1",
     openai_api_key="sk-savegate-xxxxxxxxxxxxx",
     openai_api_base="https://api.savegate.ai/v1"
 )
@@ -220,7 +220,7 @@ llm = OpenAI(model="gpt-4", api_key="sk-...")
 from llama_index.llms import OpenAI
 
 llm = OpenAI(
-    model="gpt-4",
+    model="gpt-5.1",
     api_key="sk-savegate-xxxxxxxxxxxxx",
     api_base="https://api.savegate.ai/v1"
 )
@@ -382,17 +382,17 @@ Estimate your savings after migration:
 def calculate_savings(monthly_tokens_in, monthly_tokens_out, model="gpt-4"):
     # Pricing per 1K tokens
     pricing = {
-        "gpt-4": {
-            "openai": {"input": 0.03, "output": 0.06},
-            "savegate": {"input": 0.021, "output": 0.042}
+        "gpt-5.1": {
+            "openai": {"input": 0.04, "output": 0.08},
+            "savegate": {"input": 0.028, "output": 0.056}
         },
-        "gpt-4-turbo": {
-            "openai": {"input": 0.01, "output": 0.03},
-            "savegate": {"input": 0.007, "output": 0.021}
+        "gpt-4.2": {
+            "openai": {"input": 0.02, "output": 0.04},
+            "savegate": {"input": 0.014, "output": 0.028}
         },
-        "claude-3-5-sonnet-20241022": {
-            "anthropic": {"input": 0.003, "output": 0.015},
-            "savegate": {"input": 0.002, "output": 0.010}
+        "claude-sonnet-4.5": {
+            "anthropic": {"input": 0.004, "output": 0.020},
+            "savegate": {"input": 0.003, "output": 0.014}
         }
     }
 
@@ -426,10 +426,10 @@ def calculate_savings(monthly_tokens_in, monthly_tokens_out, model="gpt-4"):
     }
 
 # Example: 10M input tokens, 5M output tokens per month
-result = calculate_savings(10_000_000, 5_000_000, "gpt-4-turbo")
+result = calculate_savings(10_000_000, 5_000_000, "gpt-4.2")
 print(result)
-# {'original_cost': '$250.00', 'savegate_cost': '$175.00',
-#  'monthly_savings': '$75.00', 'yearly_savings': '$900.00',
+# {'original_cost': '$400.00', 'savegate_cost': '$280.00',
+#  'monthly_savings': '$120.00', 'yearly_savings': '$1,440.00',
 #  'savings_percent': '30.0%'}
 ```
 
