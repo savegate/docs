@@ -99,7 +99,7 @@
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://savegate.ai/signin"
+      "href": "https://app.savegate.ai"
     }
   },
   "api": {

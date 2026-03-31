@@ -166,7 +166,7 @@ mint update
 ## Resources
 
 - [SaveGate Website](https://savegate.ai)
-- [SaveGate Dashboard](https://savegate.ai/signin)
+- [SaveGate Dashboard](https://app.savegate.ai)
 - [GitHub](https://github.com/savegate)
 - [Contact Support](mailto:contact@savegate.ai)
 - [Mintlify Documentation](https://mintlify.com/docs)
