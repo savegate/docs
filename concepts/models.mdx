@@ -196,11 +196,11 @@ Image generation models also support resolution and quality variants (e.g., `ope
 
 ## Google Gemini Models
 
-<Note>
-Gemini models are accessed via OpenAI-compatible endpoint. Use the model IDs below directly — no prefix needed.
-</Note>
+### Chat Models (OpenAI-Compatible)
 
-### Chat Models
+<Note>
+Chat models are accessed via the OpenAI-compatible endpoint. Use the model IDs below directly — no prefix needed.
+</Note>
 
 | Model ID | Max Input | Max Output | Input/1M | Output/1M |
 |----------|-----------|------------|----------|-----------|
@@ -209,6 +209,41 @@ Gemini models are accessed via OpenAI-compatible endpoint. Use the model IDs bel
 | `gemini-2.5-pro-nothinking` | 1.0M | 64K | $1.88 | $15 |
 | `gemini-2.5-flash` | 1.0M | 64K | $0.45 | $3.75 |
 | `gemini-2.5-flash-nothinking` | 1.0M | 64K | $0.45 | $3.75 |
+
+### Image Generation Models (Native Gemini API)
+
+<Note>
+Image generation models use the native Google Gemini API — **not** the OpenAI-compatible endpoint. Use the [Google Gemini SDK](https://ai.google.dev/gemini-api/docs) with your SaveGate API key passed via the `x-goog-api-key` header.
+</Note>
+
+| Model ID | Input/1M | Output/1M |
+|----------|----------|-----------|
+| `gemini-3-pro-image-preview-4k` | $2 | $120 |
+
+**Example: Generate an image**
+
+```bash
+curl -s 'https://api.savegate.ai/v1beta/models/gemini-3-pro-image-preview-4k:generateContent' \
+  -H 'Content-Type: application/json' \
+  -H 'x-goog-api-key: sg-xxx' \
+  -d '{
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "A futuristic city at sunset"
+          }
+        ]
+      }
+    ]
+  }' \
+| jq -r '.candidates[0].content.parts[0].inlineData.data' \
+| base64 --decode > output.png
+```
+
+<Frame caption="Example output: 'A futuristic city at sunset'">
+  <img src="/images/gemini-image-example.png" />
+</Frame>
 
 ## ElevenLabs Models
 
