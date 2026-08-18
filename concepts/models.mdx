@@ -246,6 +246,20 @@ curl -s 'https://api.savegate.ai/v1beta/models/gemini-3-pro-image-preview-4k:gen
   <img src="/images/gemini-image-example.png" />
 </Frame>
 
+## DeepSeek Models
+
+### Chat Models
+
+| Model ID | Tier | Uncached Input/1M | Cached Input/1M | Output/1M |
+|----------|------|-------------------|-----------------|-----------|
+| `deepseek-v4-pro` | Standard | $1.74 | $0.145 | $3.48 |
+
+<Note>
+**Standard tier** — for general use, balancing efficient performance and price.
+
+Cached input applies to prompt prefixes that hit the cache on repeat requests, at roughly 1/12 the uncached input price.
+</Note>
+
 ## ElevenLabs Models
 
 ### Text-to-Speech Models
