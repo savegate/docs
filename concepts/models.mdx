@@ -5,7 +5,7 @@ description: "Complete list of AI models available through SaveGate"
 
 ## Overview
 
-SaveGate provides access to **208+ AI models** from leading providers. All models are accessible through a unified API using the same authentication and request format.
+SaveGate provides access to **400+ AI models** from leading providers. All models are accessible through a unified API using the same authentication and request format.
 
 Pricing shown is per 1M tokens (input/output).
 
@@ -197,54 +197,152 @@ Image generation models also support resolution and quality variants (e.g., `hd/
 
 ## Google Gemini Models
 
-### Chat Models (OpenAI-Compatible)
+### Chat Models
 
 <Note>
-Chat models are accessed via the OpenAI-compatible endpoint. Use the model IDs below directly — no prefix needed.
+Chat models are accessed via the standard OpenAI-compatible endpoint. Use the model IDs below directly — no prefix needed.
 </Note>
 
 | Model ID | Max Input | Max Output | Input/1M | Output/1M |
 |----------|-----------|------------|----------|-----------|
+| `gemini-3.7-flash` | 1.0M | 64K | $1.13 | $5.63 |
 | `gemini-2.5-pro` | 1.0M | 64K | $1.88 | $15 |
 | `gemini-2.5-pro-thinking` | 1.0M | 64K | $1.88 | $15 |
 | `gemini-2.5-pro-nothinking` | 1.0M | 64K | $1.88 | $15 |
 | `gemini-2.5-flash` | 1.0M | 64K | $0.45 | $3.75 |
 | `gemini-2.5-flash-nothinking` | 1.0M | 64K | $0.45 | $3.75 |
 
-### Image Generation Models (Native Gemini API)
+#### Controlling thinking cost
 
-<Note>
-Image generation models use the native Google Gemini API — **not** the OpenAI-compatible endpoint. Use the [Google Gemini SDK](https://ai.google.dev/gemini-api/docs) with your SaveGate API key passed via the `x-goog-api-key` header.
-</Note>
+Gemini models think before answering by default, and those reasoning tokens are billed
+as output. On short tasks — classification, extraction, formatting — that can be most of
+your bill.
 
-| Model ID | Cost per Image |
-|----------|----------------|
-| `gemini-3-pro-image-preview-4k` | $0.30 |
+Use `reasoning_effort` to turn it down. **The accepted value differs per model**, which
+is easy to get wrong:
 
-**Example: Generate an image**
+| Model | Cheapest value | Notes |
+|-------|----------------|-------|
+| `gemini-2.5-flash` | `"none"` | Reduces reasoning to 0 tokens |
+| `gemini-2.5-pro` | `"minimal"` | `"none"` returns **400** — this model cannot disable thinking |
+| `gemini-3.7-flash` | `"low"` | `"none"` and `"minimal"` both return **400** |
 
 ```bash
-curl -s 'https://api.savegate.ai/v1beta/models/gemini-3-pro-image-preview-4k:generateContent' \
-  -H 'Content-Type: application/json' \
-  -H 'x-goog-api-key: sg-xxx' \
+curl https://api.savegate.ai/v1/chat/completions \
+  -H "Authorization: Bearer $SAVEGATE_API_KEY" \
+  -H "Content-Type: application/json" \
   -d '{
-    "contents": [
-      {
-        "parts": [
-          {
-            "text": "A futuristic city at sunset"
-          }
-        ]
-      }
-    ]
-  }' \
-| jq -r '.candidates[0].content.parts[0].inlineData.data' \
-| base64 --decode > output.png
+    "model": "gemini-3.7-flash",
+    "reasoning_effort": "low",
+    "messages": [{"role": "user", "content": "Extract the city: I flew to Da Nang on Friday."}]
+  }'
 ```
 
-<Frame caption="Example output: 'A futuristic city at sunset'">
-  <img src="/images/gemini-image-example.png" />
+Leave `reasoning_effort` unset when answer quality matters more than cost.
+
+### Image Generation Models
+
+Google calls these models *"nano banana"* and *"nano banana pro"*. The IDs below are the
+official API names — use those.
+
+| Model ID | Input/1M | Output/1M | Typical cost per image |
+|----------|----------|-----------|------------------------|
+| `gemini-2.5-flash-image` | $0.45 | $3.75 | ~$0.058 |
+| `gemini-3-pro-image` | $3.00 | $18.00 | ~$0.202 |
+
+<Note>
+Images are billed **per token, not per image**. A generated image costs roughly
+1,100–1,300 output tokens, so the per-image figures above are typical rather than fixed.
+The exact number appears in your usage report.
+</Note>
+
+Both models work through the standard OpenAI-compatible endpoint. Two ways to call them:
+
+#### 1. `/v1/images/generations` — plain generation
+
+```bash
+curl https://api.savegate.ai/v1/images/generations \
+  -H "Authorization: Bearer $SAVEGATE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-2.5-flash-image",
+    "prompt": "A cozy Vietnamese coffee shop interior, warm morning light, phin filter on a wooden table, photorealistic"
+  }' \
+| jq -r '.data[0].b64_json' | base64 --decode > output.png
+```
+
+<Warning>
+The response contains `data[0].b64_json`, **not** `data[0].url`. You must decode the
+base64 yourself — there is no hosted image link.
+</Warning>
+
+<Frame caption="gemini-2.5-flash-image · 1024×1024 · ~$0.058">
+  <img src="/images/gemini-flash-image-example.jpg" />
 </Frame>
+
+Set the frame shape with `imageConfig`:
+
+```json
+{
+  "model": "gemini-3-pro-image",
+  "prompt": "...",
+  "imageConfig": { "aspectRatio": "16:9" }
+}
+```
+
+| `aspectRatio` | Output size |
+|---------------|-------------|
+| *(omitted)* | 1024×1024 |
+| `16:9` | 1408×768 |
+
+<Frame caption="gemini-3-pro-image · 16:9 → 1408×768 · ~$0.202">
+  <img src="/images/gemini-pro-image-example.jpg" />
+</Frame>
+
+#### 2. `/v1/chat/completions` — editing, or text + image together
+
+Send an image in and describe the change. This is the only way to **edit** an image.
+
+```bash
+# Build the request in a FILE. A base64-encoded image is 1-2 MB, which overflows
+# the shell argument limit if you inline it — you would get
+# "argument list too long" rather than an API error.
+base64 -i input.png | tr -d '\n' > b64.txt
+
+jq -n --rawfile b64 b64.txt '{
+  model: "gemini-3-pro-image",
+  modalities: ["image", "text"],
+  messages: [{
+    role: "user",
+    content: [
+      {type: "text", text: "Make the mug bright red. Keep everything else the same."},
+      {type: "image_url", image_url: {url: ("data:image/png;base64," + $b64)}}
+    ]
+  }]
+}' > req.json
+
+curl https://api.savegate.ai/v1/chat/completions \
+  -H "Authorization: Bearer $SAVEGATE_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data-binary @req.json \
+| jq -r '.choices[0].message.images[0].image_url.url' \
+| sed 's|^data:image/[^;]*;base64,||' | base64 --decode > edited.png
+```
+
+<Warning>
+On this path the image is at `choices[0].message.images[0].image_url.url` as a data URI —
+note **`images`, plural**. Reading `message.content` returns `null`.
+</Warning>
+
+#### Practical notes
+
+- A response is 1–2 MB of base64. Set a generous client timeout (60s+) and never print
+  it straight to a terminal.
+- When sending an image **in**, build the JSON in a file (`--data-binary @req.json`).
+  Inlining base64 into a shell argument fails with `argument list too long`.
+- `n` (multiple images per request) is not supported — issue separate requests.
+- Choose `gemini-2.5-flash-image` unless you need the quality: `gemini-3-pro-image`
+  costs about **3.5× more** per image.
 
 ## DeepSeek Models
 

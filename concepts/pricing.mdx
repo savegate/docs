@@ -1,11 +1,12 @@
 ---
 title: "Pricing"
-description: "Transparent pricing for all AI models with 30-50% savings"
+description: "Transparent, pay-as-you-go pricing across every model on SaveGate"
 ---
 
-## Save 30-50% on AI Costs
+## How Pricing Works
 
-SaveGate offers significantly lower prices than direct provider pricing through shared infrastructure and enterprise agreements.
+One account, one API key, one invoice — across every provider. You pay per token, with
+no monthly minimum and no commitment.
 
 <Card title="Free Tier" icon="gift">
   Get started free with 100K tokens per month included.
@@ -14,45 +15,52 @@ SaveGate offers significantly lower prices than direct provider pricing through 
 
 ## Pay-As-You-Go Pricing
 
-Pay only for what you use. No monthly minimums or commitments.
+Prices below are **per 1M tokens**, listed as input / output.
 
-### Pricing Comparison
-
-See how much you save compared to direct provider pricing:
+<Note>
+This page shows a representative sample. The
+[Supported Models](/concepts/models) page carries the full, authoritative price list for
+all 400+ models — always check there before estimating.
+</Note>
 
 <Tabs>
-  <Tab title="OpenAI Models">
-    | Model | SaveGate Input | SaveGate Output | OpenAI Input | OpenAI Output | Savings |
-    |-------|----------------|-----------------|--------------|---------------|---------|
-    | **GPT-4 Turbo** | $0.007 | $0.021 | $0.01 | $0.03 | **30%** |
-    | **GPT-4** | $0.021 | $0.042 | $0.03 | $0.06 | **30%** |
-    | **GPT-3.5 Turbo** | $0.0003 | $0.0006 | $0.0005 | $0.0015 | **40-60%** |
-
-    *Prices per 1,000 tokens*
+  <Tab title="OpenAI">
+    | Model ID | Input / 1M | Output / 1M |
+    |----------|-----------|-------------|
+    | `gpt-5.4` | $2.50 | $15 |
+    | `gpt-5.4-mini` | $0.25 | $2 |
+    | `gpt-5.4-nano` | $0.05 | $0.40 |
+    | `gpt-4o` | $2.50 | $10 |
+    | `gpt-4o-mini` | $0.15 | $0.60 |
+    | `o4-mini` | $1.10 | $4.40 |
   </Tab>
 
-  <Tab title="Anthropic Models">
-    | Model | SaveGate Input | SaveGate Output | Anthropic Input | Anthropic Output | Savings |
-    |-------|----------------|-----------------|-----------------|------------------|---------|
-    | **Claude 3.5 Sonnet** | $0.002 | $0.010 | $0.003 | $0.015 | **33%** |
-    | **Claude 3 Opus** | $0.010 | $0.050 | $0.015 | $0.075 | **33%** |
-    | **Claude 3 Haiku** | $0.00018 | $0.00090 | $0.00025 | $0.00125 | **28%** |
-
-    *Prices per 1,000 tokens*
+  <Tab title="Anthropic">
+    | Model ID | Input / 1M | Output / 1M |
+    |----------|-----------|-------------|
+    | `claude-opus-4-7` | $5 | $25 |
+    | `claude-sonnet-4-6` | $3 | $15 |
   </Tab>
 
-  <Tab title="Google Models">
-    | Model | SaveGate Input | SaveGate Output | Google Input | Google Output | Savings |
-    |-------|----------------|-----------------|--------------|---------------|---------|
-    | **Gemini 1.5 Pro** | $0.002 | $0.006 | $0.0025 | $0.0075 | **20%** |
-    | **Gemini 1.5 Flash** | $0.00005 | $0.00015 | $0.000075 | $0.0003 | **33-50%** |
+  <Tab title="Google">
+    | Model ID | Input / 1M | Output / 1M |
+    |----------|-----------|-------------|
+    | `gemini-2.5-pro` | $1.88 | $15 |
+    | `gemini-3.7-flash` | $1.13 | $5.63 |
+    | `gemini-2.5-flash` | $0.45 | $3.75 |
+    | `gemini-2.5-flash-image` | $0.45 | $3.75 |
+    | `gemini-3-pro-image` | $3.00 | $18.00 |
+  </Tab>
 
-    *Prices per 1,000 tokens*
+  <Tab title="DeepSeek">
+    | Model ID | Input / 1M | Cached input / 1M | Output / 1M |
+    |----------|-----------|-------------------|-------------|
+    | `deepseek-v4-pro` | $1.74 | $0.145 | $3.48 |
   </Tab>
 </Tabs>
 
 <Note>
-Prices are per 1,000 tokens. Most models have separate pricing for input and output tokens.
+Prices are per 1M tokens. Input and output are billed separately, at different rates.
 </Note>
 
 ## Free Tier
@@ -118,7 +126,7 @@ For large-scale deployments and organizations:
   <Card title="Team Plan" icon="users">
     **Starting at $500/month**
 
-    - Volume discounts
+    - Volume pricing on request
     - Team management
     - Priority support
     - Dedicated account manager
@@ -128,7 +136,7 @@ For large-scale deployments and organizations:
   <Card title="Enterprise Plan" icon="building">
     **Custom Pricing**
 
-    - Maximum discounts
+    - Negotiated rates
     - SLA guarantees
     - On-premises deployment
     - Custom integrations
@@ -150,50 +158,55 @@ For large-scale deployments and organizations:
 Estimate your monthly costs:
 
 <AccordionGroup>
-  <Accordion title="Example: Chatbot Application" icon="robot">
-    **Assumptions:**
-    - 10,000 conversations/month
-    - Average 10 messages per conversation
-    - 100 tokens input + 150 tokens output per message
-    - Using GPT-3.5 Turbo
+  <Accordion title="Example: Chatbot" icon="robot">
+    **Assumptions**
+    - 10,000 conversations/month, 10 messages each
+    - 100 input + 150 output tokens per message
+    - Model: `gpt-4o-mini` — $0.15 / $0.60 per 1M
 
-    **Calculation:**
-    - Total messages: 10,000 × 10 = 100,000
-    - Input tokens: 100,000 × 100 = 10M
-    - Output tokens: 100,000 × 150 = 15M
-    - Input cost: 10M × $0.0003 / 1K = $3
-    - Output cost: 15M × $0.0006 / 1K = $9
-    - **Total: $12/month**
+    **Calculation**
+    - Messages: 10,000 × 10 = 100,000
+    - Input: 100,000 × 100 = 10M tokens → 10 × $0.15 = **$1.50**
+    - Output: 100,000 × 150 = 15M tokens → 15 × $0.60 = **$9.00**
+    - **Total: $10.50/month**
   </Accordion>
 
   <Accordion title="Example: Content Generation" icon="file-lines">
-    **Assumptions:**
+    **Assumptions**
     - 1,000 articles/month
-    - 500 tokens prompt + 2,000 tokens generated
-    - Using GPT-4 Turbo
+    - 500 input + 2,000 output tokens each
+    - Model: `claude-sonnet-4-6` — $3 / $15 per 1M
 
-    **Calculation:**
-    - Input tokens: 1,000 × 500 = 500K
-    - Output tokens: 1,000 × 2,000 = 2M
-    - Input cost: 500K × $0.007 / 1K = $3.50
-    - Output cost: 2M × $0.021 / 1K = $42
-    - **Total: $45.50/month**
+    **Calculation**
+    - Input: 1,000 × 500 = 0.5M tokens → 0.5 × $3 = **$1.50**
+    - Output: 1,000 × 2,000 = 2M tokens → 2 × $15 = **$30.00**
+    - **Total: $31.50/month**
   </Accordion>
 
   <Accordion title="Example: Code Assistant" icon="code">
-    **Assumptions:**
-    - 500 coding sessions/month
-    - Average 20 requests per session
-    - 200 tokens input + 300 tokens output
-    - Using Claude 3.5 Sonnet
+    **Assumptions**
+    - 500 sessions/month, 20 requests each
+    - 200 input + 300 output tokens per request
+    - Model: `gpt-5.4-mini` — $0.25 / $2 per 1M
 
-    **Calculation:**
-    - Total requests: 500 × 20 = 10,000
-    - Input tokens: 10,000 × 200 = 2M
-    - Output tokens: 10,000 × 300 = 3M
-    - Input cost: 2M × $0.002 / 1K = $4
-    - Output cost: 3M × $0.010 / 1K = $30
-    - **Total: $34/month**
+    **Calculation**
+    - Requests: 500 × 20 = 10,000
+    - Input: 10,000 × 200 = 2M tokens → 2 × $0.25 = **$0.50**
+    - Output: 10,000 × 300 = 3M tokens → 3 × $2 = **$6.00**
+    - **Total: $6.50/month**
+  </Accordion>
+
+  <Accordion title="Example: Image Generation" icon="image">
+    **Assumptions**
+    - 2,000 images/month
+    - ~1,300 output tokens per image
+    - Model: `gemini-2.5-flash-image` — $3.75 per 1M output
+
+    **Calculation**
+    - Output: 2,000 × 1,300 = 2.6M tokens → 2.6 × $3.75 = **$9.75**
+    - **Total: ~$10/month**
+
+    Images are billed per token, not per image — the count varies with the output.
   </Accordion>
 </AccordionGroup>
 
@@ -221,12 +234,12 @@ Estimate your monthly costs:
     - Email notifications before limits
   </Accordion>
 
-  <Accordion title="Do you offer volume discounts?" icon="percent">
-    Yes! Automatic discounts apply:
-    - $1,000+/month: 10% discount
-    - $5,000+/month: 20% discount
-    - $10,000+/month: 30% discount
-    - Enterprise: Custom pricing
+  <Accordion title="Do you offer volume pricing?" icon="percent">
+    Yes — volume pricing is agreed per account rather than published as a fixed table,
+    so it can be matched to your actual traffic mix.
+
+    Email [contact@savegate.ai](mailto:contact@savegate.ai) with your monthly volume and
+    the models you use, and we will quote you directly.
   </Accordion>
 </AccordionGroup>
 
@@ -242,11 +255,18 @@ Track costs in real-time:
    - Application (if using multiple keys)
    - Cost trends
 
-## Save Even More
+## Keeping Costs Down
 
 <CardGroup cols={2}>
-  <Card title="Use Cheaper Models" icon="piggy-bank">
-    Start with GPT-3.5 or Claude Haiku for simple tasks, upgrade only when needed.
+  <Card title="Right-size the model" icon="piggy-bank">
+    Start with `gpt-4o-mini` or `gemini-2.5-flash` for simple tasks and move up only when
+    quality demands it. The gap between tiers is often 10x or more.
+  </Card>
+
+  <Card title="Turn down Gemini thinking" icon="brain">
+    Gemini models reason before answering and bill those tokens as output. Set
+    `reasoning_effort` on short tasks — see
+    [Supported Models](/concepts/models) for the correct value per model.
   </Card>
 
   <Card title="Optimize Prompts" icon="wand-magic-sparkles">
