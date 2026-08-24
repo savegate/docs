@@ -376,62 +376,50 @@ def chat_with_fallback(message, model="gpt-4"):
 
 ## Cost Comparison Tool
 
-Estimate your savings after migration:
+List prices on SaveGate match each provider's official rates — see
+[Pricing](/concepts/pricing). Your account discount is agreed when you sign, so plug
+your own rate into the calculator below to estimate what migration saves you.
 
 ```python
-def calculate_savings(monthly_tokens_in, monthly_tokens_out, model="gpt-4"):
-    # Pricing per 1K tokens
-    pricing = {
-        "gpt-5.1": {
-            "openai": {"input": 0.04, "output": 0.08},
-            "savegate": {"input": 0.028, "output": 0.056}
-        },
-        "gpt-4.2": {
-            "openai": {"input": 0.02, "output": 0.04},
-            "savegate": {"input": 0.014, "output": 0.028}
-        },
-        "claude-sonnet-4.5": {
-            "anthropic": {"input": 0.004, "output": 0.020},
-            "savegate": {"input": 0.003, "output": 0.014}
-        }
-    }
+# List rates per 1M tokens — official provider pricing, see /concepts/pricing
+LIST_PRICING = {
+    "gpt-5.4":                {"input": 2.50, "output": 15.00},
+    "gpt-5.4-mini":           {"input": 0.75, "output": 4.50},
+    "gpt-4o-mini":            {"input": 0.15, "output": 0.60},
+    "claude-opus-4-7":        {"input": 5.00, "output": 25.00},
+    "claude-sonnet-4-6":      {"input": 3.00, "output": 15.00},
+    "gemini-2.5-flash":       {"input": 0.30, "output": 2.50},
+    "deepseek-v4-flash-0731": {"input": 0.14, "output": 0.28},
+}
 
-    model_pricing = pricing.get(model)
-    if not model_pricing:
-        return "Model not found"
+def calculate_savings(model, monthly_tokens_in, monthly_tokens_out, discount=0.0):
+    """discount: your contracted rate, e.g. 0.30 for 30% off list."""
+    rate = LIST_PRICING.get(model)
+    if rate is None:
+        raise ValueError(f"Unknown model: {model}")
 
-    # Calculate costs (convert to thousands)
-    tokens_in_k = monthly_tokens_in / 1000
-    tokens_out_k = monthly_tokens_out / 1000
-
-    original_cost = (
-        tokens_in_k * list(model_pricing.values())[0]["input"] +
-        tokens_out_k * list(model_pricing.values())[0]["output"]
-    )
-
-    savegate_cost = (
-        tokens_in_k * model_pricing["savegate"]["input"] +
-        tokens_out_k * model_pricing["savegate"]["output"]
-    )
-
-    savings = original_cost - savegate_cost
-    savings_percent = (savings / original_cost) * 100
+    list_cost = (monthly_tokens_in  / 1_000_000) * rate["input"] + \
+                (monthly_tokens_out / 1_000_000) * rate["output"]
+    your_cost = list_cost * (1 - discount)
+    savings   = list_cost - your_cost
 
     return {
-        "original_cost": f"${original_cost:.2f}",
-        "savegate_cost": f"${savegate_cost:.2f}",
+        "list_cost":       f"${list_cost:.2f}",
+        "your_cost":       f"${your_cost:.2f}",
         "monthly_savings": f"${savings:.2f}",
-        "yearly_savings": f"${savings * 12:.2f}",
-        "savings_percent": f"{savings_percent:.1f}%"
+        "yearly_savings":  f"${savings * 12:.2f}",
     }
 
-# Example: 10M input tokens, 5M output tokens per month
-result = calculate_savings(10_000_000, 5_000_000, "gpt-4.2")
-print(result)
-# {'original_cost': '$400.00', 'savegate_cost': '$280.00',
-#  'monthly_savings': '$120.00', 'yearly_savings': '$1,440.00',
-#  'savings_percent': '30.0%'}
+# Example: 10M input + 5M output per month on gpt-5.4-mini, at a 30% contract discount
+print(calculate_savings("gpt-5.4-mini", 10_000_000, 5_000_000, discount=0.30))
+# {'list_cost': '$30.00', 'your_cost': '$21.00',
+#  'monthly_savings': '$9.00', 'yearly_savings': '$108.00'}
 ```
+
+<Note>
+Discounts scale with committed volume and are set per account. Talk to us at
+[contact@savegate.ai](mailto:contact@savegate.ai) to find your rate.
+</Note>
 
 ## Need Help?
 

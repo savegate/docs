@@ -17,8 +17,8 @@ Pricing shown is per 1M tokens (input/output).
 |----------|-----------|------------|----------|-----------|
 | `gpt-5.4` | 1.1M | 128K | $2.50 | $15 |
 | `gpt-5.4-2026-03-05` | 1.1M | 128K | $2.50 | $15 |
-| `gpt-5.4-mini` | 272K | 128K | $0.25 | $2 |
-| `gpt-5.4-nano` | 272K | 128K | $0.05 | $0.40 |
+| `gpt-5.4-mini` | 272K | 128K | $0.75 | $4.50 |
+| `gpt-5.4-nano` | 272K | 128K | $0.20 | $1.25 |
 | `gpt-5.3-chat-latest` | 128K | 16.4K | $1.75 | $14 |
 | `gpt-5.2` | 272K | 128K | $1.75 | $14 |
 | `gpt-5.2-chat-latest` | 128K | 16.4K | $1.75 | $14 |
@@ -205,12 +205,9 @@ Chat models are accessed via the standard OpenAI-compatible endpoint. Use the mo
 
 | Model ID | Max Input | Max Output | Input/1M | Output/1M |
 |----------|-----------|------------|----------|-----------|
-| `gemini-3.7-flash` | 1.0M | 64K | $1.13 | $5.63 |
-| `gemini-2.5-pro` | 1.0M | 64K | $1.88 | $15 |
-| `gemini-2.5-pro-thinking` | 1.0M | 64K | $1.88 | $15 |
-| `gemini-2.5-pro-nothinking` | 1.0M | 64K | $1.88 | $15 |
-| `gemini-2.5-flash` | 1.0M | 64K | $0.45 | $3.75 |
-| `gemini-2.5-flash-nothinking` | 1.0M | 64K | $0.45 | $3.75 |
+| `gemini-3.7-flash` | 1.0M | 64K | $0.75 | $3.75 |
+| `gemini-2.5-pro` | 1.0M | 64K | $1.25 | $10 |
+| `gemini-2.5-flash` | 1.0M | 64K | $0.30 | $2.50 |
 
 #### Controlling thinking cost
 
@@ -245,15 +242,16 @@ Leave `reasoning_effort` unset when answer quality matters more than cost.
 Google calls these models *"nano banana"* and *"nano banana pro"*. The IDs below are the
 official API names — use those.
 
-| Model ID | Input/1M | Output/1M | Typical cost per image |
-|----------|----------|-----------|------------------------|
-| `gemini-2.5-flash-image` | $0.45 | $3.75 | ~$0.058 |
-| `gemini-3-pro-image` | $3.00 | $18.00 | ~$0.202 |
+| Model ID | Input/1M | Output/1M | Per generated image |
+|----------|----------|-----------|---------------------|
+| `gemini-2.5-flash-image` | $0.30 | $2.50 | $0.039 |
+| `gemini-3-pro-image` | $2.00 | $12.00 | $0.134 |
 
 <Note>
-Images are billed **per token, not per image**. A generated image costs roughly
-1,100–1,300 output tokens, so the per-image figures above are typical rather than fixed.
-The exact number appears in your usage report.
+Generated images are billed at a **flat rate per image** — $0.039 for
+`gemini-2.5-flash-image`, $0.134 for `gemini-3-pro-image` — regardless of resolution.
+Text in the same request (your prompt, and any text the model returns) is billed
+separately at the input/output rates above. Both figures appear in your usage report.
 </Note>
 
 Both models work through the standard OpenAI-compatible endpoint. Two ways to call them:
