@@ -29,7 +29,7 @@ import litellm
 
 # Configure SaveGate as the API base
 litellm.api_base = "https://api.savegate.ai/v1"
-litellm.api_key = "sk-savegate-xxxxxxxxxxxxx"
+litellm.api_key = "sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 # Now use LiteLLM as normal
 response = litellm.completion(
@@ -46,7 +46,7 @@ import litellm
 
 # Set via environment variables
 os.environ["OPENAI_API_BASE"] = "https://api.savegate.ai/v1"
-os.environ["OPENAI_API_KEY"] = "sk-savegate-xxxxxxxxxxxxx"
+os.environ["OPENAI_API_KEY"] = "sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 response = litellm.completion(
     model="gpt-4",
@@ -64,7 +64,7 @@ response = litellm.completion(
     model="gpt-4",
     messages=[{"role": "user", "content": "Hello!"}],
     api_base="https://api.savegate.ai/v1",
-    api_key="sk-savegate-xxxxxxxxxxxxx"
+    api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 )
 ```
 
@@ -528,7 +528,7 @@ response = client.chat.completions.create(
 import litellm
 
 litellm.api_base = "https://api.savegate.ai/v1"
-litellm.api_key = "sk-savegate-xxx"
+litellm.api_key = "sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 response = litellm.completion(
     model="gpt-4",

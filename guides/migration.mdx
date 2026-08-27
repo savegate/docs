@@ -45,7 +45,7 @@ response = client.chat.completions.create(
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="sk-savegate-xxxxxxxxxxxxx",  # SaveGate API key
+    api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",  # SaveGate API key
     base_url="https://api.savegate.ai/v1"  # SaveGate base URL
 )
 
@@ -87,7 +87,7 @@ OPENAI_API_KEY=sk-...your-openai-key...
 ```
 
 ```bash After
-SAVEGATE_API_KEY=sk-savegate-xxxxxxxxxxxxx
+SAVEGATE_API_KEY=sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 OPENAI_API_BASE=https://api.savegate.ai/v1
 ```
 </CodeGroup>
@@ -115,7 +115,7 @@ message = client.messages.create(
 from anthropic import Anthropic
 
 client = Anthropic(
-    api_key="sk-savegate-xxxxxxxxxxxxx",
+    api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     base_url="https://api.savegate.ai/v1"
 )
 
@@ -130,7 +130,7 @@ message = client.messages.create(
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="sk-savegate-xxxxxxxxxxxxx",
+    api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     base_url="https://api.savegate.ai/v1"
 )
 
@@ -156,7 +156,7 @@ response = model.generate_content("Hello")
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="sk-savegate-xxxxxxxxxxxxx",
+    api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     base_url="https://api.savegate.ai/v1"
 )
 
@@ -187,7 +187,7 @@ from langchain.chat_models import ChatOpenAI
 
 llm = ChatOpenAI(
     model="gpt-5.1",
-    openai_api_key="sk-savegate-xxxxxxxxxxxxx",
+    openai_api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     openai_api_base="https://api.savegate.ai/v1"
 )
 ```
@@ -197,7 +197,7 @@ Or use environment variables:
 ```python
 import os
 
-os.environ["OPENAI_API_KEY"] = "sk-savegate-xxxxxxxxxxxxx"
+os.environ["OPENAI_API_KEY"] = "sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 os.environ["OPENAI_API_BASE"] = "https://api.savegate.ai/v1"
 
 from langchain.chat_models import ChatOpenAI
@@ -221,7 +221,7 @@ from llama_index.llms import OpenAI
 
 llm = OpenAI(
     model="gpt-5.1",
-    api_key="sk-savegate-xxxxxxxxxxxxx",
+    api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     api_base="https://api.savegate.ai/v1"
 )
 ```
@@ -292,7 +292,7 @@ def get_client():
     # 20% of requests go to SaveGate
     if random.random() < 0.2:
         return OpenAI(
-            api_key="sk-savegate-xxxxxxxxxxxxx",
+            api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
             base_url="https://api.savegate.ai/v1"
         )
     else:
@@ -312,7 +312,7 @@ def chat_with_fallback(message, model="gpt-4"):
     # Try SaveGate first
     try:
         client = OpenAI(
-            api_key="sk-savegate-xxxxxxxxxxxxx",
+            api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
             base_url="https://api.savegate.ai/v1"
         )
         response = client.chat.completions.create(
@@ -342,7 +342,7 @@ def chat_with_fallback(message, model="gpt-4"):
 
     **Solution:**
     - Verify your SaveGate API key is correct
-    - Check that you're using `sk-savegate-` prefix
+    - Check that you're using `sg-` prefix
     - Ensure the key hasn't been revoked
   </Accordion>
 

@@ -63,7 +63,7 @@ Create embeddings for text inputs. Useful for semantic search, clustering, and R
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="sk-savegate-xxxxxxxxxxxxx",
+    api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     base_url="https://api.savegate.ai/v1"
 )
 
@@ -80,7 +80,7 @@ print(f"Embedding dimension: {len(embedding)}")
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  apiKey: 'sk-savegate-xxxxxxxxxxxxx',
+  apiKey: 'sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
   baseURL: 'https://api.savegate.ai/v1'
 });
 
@@ -95,7 +95,7 @@ console.log(`Embedding dimension: ${embedding.length}`);
 
 ```bash cURL
 curl https://api.savegate.ai/v1/embeddings \
-  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx" \
+  -H "Authorization: Bearer sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "text-embedding-3-small",

@@ -1,0 +1,180 @@
+---
+title: "OpenAI Codex CLI"
+description: "Point Codex CLI at SaveGate and run coding sessions on any supported model"
+---
+
+## Overview
+
+[Codex CLI](https://developers.openai.com/codex/cli) is OpenAI's terminal coding
+agent. It talks to the **Responses API**, which SaveGate serves at
+`https://api.savegate.ai/v1/responses`, so you can run Codex against your
+SaveGate account with one config file and one environment variable.
+
+Nothing about your workflow changes: Codex still reads your files, runs
+commands, and edits code. Only the endpoint moves.
+
+## Prerequisites
+
+- Codex CLI installed:
+
+  ```bash
+  npm install -g @openai/codex
+  ```
+
+  Already have it? `codex update` pulls the latest build.
+
+- A SaveGate API key (starts with `sg-`)
+
+## Setup
+
+<Steps>
+  <Step title="Add SaveGate as a model provider">
+    Create or edit `~/.codex/config.toml`:
+
+    ```toml ~/.codex/config.toml
+    model = "gpt-5.3-codex"
+    model_provider = "savegate"
+
+    [model_providers.savegate]
+    name = "SaveGate"
+    base_url = "https://api.savegate.ai/v1"
+    env_key = "SAVEGATE_API_KEY"
+    wire_api = "responses"
+    ```
+
+    <Warning>
+    `wire_api = "responses"` is required. Codex defaults to the Chat Completions
+    wire format for custom providers, and the Codex models expect the Responses
+    API.
+    </Warning>
+  </Step>
+
+  <Step title="Export your key">
+    ```bash
+    export SAVEGATE_API_KEY="sg-your-key-here"
+    ```
+
+    Add it to your shell profile (`~/.zshrc`, `~/.bashrc`) so it survives new
+    terminals. `env_key` in the config names the variable — Codex reads the key
+    from there, so the key itself never goes into the config file.
+  </Step>
+
+  <Step title="Verify">
+    ```bash
+    codex exec "Reply with exactly the word SAVEGATE_OK and nothing else."
+    ```
+
+    You should see `SAVEGATE_OK`. If you do, the agent loop, tool calls, and
+    billing are all working.
+  </Step>
+</Steps>
+
+## Available models
+
+Every model below was verified by running a complete Codex session against it —
+file read, tool call, and answer — not just by checking that the endpoint
+accepts a request. That distinction matters: several models accept a Responses
+call but break part-way through Codex's agent loop.
+
+| Model ID | Notes |
+|----------|-------|
+| `gpt-5.3-codex` | Purpose-built for Codex. Start here. |
+| `gpt-5.4` | Strongest general model |
+| `gpt-5.4-mini` | Good quality at a fraction of the cost |
+| `gpt-5.2` | |
+| `gpt-5.1` | |
+| `gpt-4o` | |
+| `gpt-4o-mini` | Cheapest verified option |
+
+```bash
+codex exec -m gpt-5.4-mini "Explain what this repo does."
+```
+
+<Warning>
+**Not usable with Codex**, even though they work fine on other SaveGate
+endpoints:
+
+- **Anthropic and Google models** (`claude-*`, `gemini-*`) — the session drops
+  into repeated `Reconnecting...` and never completes. Codex's agent loop
+  depends on OpenAI-native Responses semantics that translation does not fully
+  reproduce.
+- `gpt-5.4-nano`, `o4-mini` — the session errors mid-run in our testing.
+- Other `*-codex` variants (`gpt-5.2-codex`, `gpt-5.1-codex`, `gpt-5-codex`,
+  `codex-mini-latest`) — upstream returns `Model not found`.
+
+Use these models through [Chat Completions](/api-reference/chat-completions)
+instead, where they are fully supported.
+</Warning>
+
+See [Pricing](/concepts/pricing) for per-token rates. Codex resends the working
+context on every turn, so a single session commonly runs to tens of thousands of
+input tokens — budget accordingly, and prefer `gpt-4o-mini` or `gpt-5.4-mini`
+for routine work.
+
+## Using a separate profile
+
+To keep SaveGate settings out of your default Codex config, put them in their
+own `CODEX_HOME`:
+
+```bash
+export CODEX_HOME=~/.codex-savegate
+mkdir -p "$CODEX_HOME"
+# write the config above to $CODEX_HOME/config.toml
+codex exec "..."
+```
+
+Useful when you switch between SaveGate and another provider.
+
+## Known warning
+
+On startup Codex may print:
+
+```
+warning: Model metadata for `gpt-5.3-codex` not found.
+Defaulting to fallback metadata; this can degrade performance and cause issues.
+```
+
+This is harmless. It comes from Codex's own built-in model registry, which only
+recognises models served by its default provider. Sessions run normally —
+tool calls, streaming, and multi-turn context all work.
+
+Setting `model_context_window` and `model_max_output_tokens` in `config.toml`
+does **not** silence it; the warning is emitted before those are consulted.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized" icon="key">
+    - Confirm `SAVEGATE_API_KEY` is exported in the shell you are running Codex from: `echo $SAVEGATE_API_KEY`
+    - SaveGate keys start with `sg-`. A key in any other format will be rejected.
+    - Check the key is active in your dashboard.
+  </Accordion>
+
+  <Accordion title="400 or MISSING_CONTEXT" icon="triangle-exclamation">
+    Almost always a missing `wire_api = "responses"` in the provider block.
+    Without it Codex sends Chat Completions payloads to a Responses endpoint.
+  </Accordion>
+
+  <Accordion title="Model not found" icon="magnifying-glass">
+    Model IDs are case-sensitive and must match the table above exactly.
+    `gpt-5.3-codex` works; `gpt-5.3-Codex` and `codex-5.3` do not.
+  </Accordion>
+
+  <Accordion title="Session appears to hang" icon="clock">
+    Codex sends large contexts and reasoning models take time to produce a first
+    token. A minute of silence on a big repository is normal. If nothing arrives
+    after several minutes, re-run with a smaller prompt to isolate the problem.
+  </Accordion>
+</AccordionGroup>
+
+## What Codex uses
+
+For reference, a Codex session talks to exactly one SaveGate endpoint:
+
+```
+POST /v1/responses
+```
+
+Turns are chained with `previous_response_id`, so no server-side session state
+is needed on your side. Codex does not call `/v1/models`, and does not use the
+response retrieve, cancel, or delete endpoints.

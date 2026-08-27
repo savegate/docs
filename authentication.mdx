@@ -28,7 +28,7 @@ Include your API key in the Authorization header of all API requests:
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="sk-savegate-xxxxxxxxxxxxx",
+    api_key="sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     base_url="https://api.savegate.ai/v1"
 )
 ```
@@ -37,14 +37,14 @@ client = OpenAI(
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  apiKey: 'sk-savegate-xxxxxxxxxxxxx',
+  apiKey: 'sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
   baseURL: 'https://api.savegate.ai/v1'
 });
 ```
 
 ```bash cURL
 curl https://api.savegate.ai/v1/chat/completions \
-  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx" \
+  -H "Authorization: Bearer sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gpt-4",
@@ -67,7 +67,7 @@ curl https://api.savegate.ai/v1/chat/completions \
     Store your API key in environment variables:
 
     ```bash .env
-    SAVEGATE_API_KEY=sk-savegate-xxxxxxxxxxxxx
+    SAVEGATE_API_KEY=sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     ```
 
     Then load it in your code:
@@ -115,10 +115,10 @@ curl https://api.savegate.ai/v1/chat/completions \
 SaveGate API keys follow this format:
 
 ```
-sk-savegate-[random-string]
+sg-[random-string]
 ```
 
-- All keys start with `sk-savegate-`
+- All keys start with `sg-`
 - The random string is 32 characters long
 - Keys are case-sensitive
 

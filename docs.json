@@ -43,6 +43,7 @@
           {
             "group": "Guides",
             "pages": [
+              "guides/codex-cli",
               "guides/migration",
               "guides/streaming",
               "guides/error-handling",

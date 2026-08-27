@@ -1,52 +1,83 @@
 ---
 title: "List Models"
-description: "Get list of available models"
-api: "GET https://api.savegate.ai/v1/models"
+description: "Programmatic model discovery"
 ---
 
-## Overview
+<Warning>
+**Not yet available.** `GET /v1/models` does not currently return a usable
+catalogue, and `GET /v1/models/{model}` is not implemented. Both are on the
+roadmap.
 
-Retrieve a list of all available models.
+For the list of models you can call today, see
+[Models](/concepts/models) — it is the authoritative reference and includes
+context windows, capabilities, and pricing.
+</Warning>
 
-## Request
+## Current behaviour
 
 ```bash
 curl https://api.savegate.ai/v1/models \
-  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx"
+  -H "Authorization: Bearer sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
-
-## Response
-
-Returns a list of available model objects.
 
 ```json
 {
   "object": "list",
   "data": [
-    {
-      "id": "gpt-4",
-      "object": "model",
-      "created": 1678936877,
-      "owned_by": "openai"
-    },
-    {
-      "id": "claude-3-5-sonnet-20241022",
-      "object": "model",
-      "created": 1729551832,
-      "owned_by": "anthropic"
-    }
-    // ... more models
+    { "id": "*", "object": "model", "owned_by": "litellm", "provider": "litellm" }
   ]
 }
 ```
 
-## Get Specific Model
+The single `"*"` entry means "this gateway can route any configured model". It
+is not a catalogue, and code that populates a model picker from it will find
+nothing usable.
 
-```bash
-curl https://api.savegate.ai/v1/models/gpt-4 \
-  -H "Authorization: Bearer sk-savegate-xxxxxxxxxxxxx"
-```
+`GET /v1/models/{model}` returns `400 MISSING_CONTEXT`.
+
+## What to do instead
+
+<AccordionGroup>
+  <Accordion title="Choosing a model in code" icon="code">
+    Pin the model IDs your application uses rather than discovering them at
+    runtime. IDs from [Models](/concepts/models) are stable — a model is
+    retired with notice, never renamed underneath you.
+
+    ```python
+    MODELS = {
+        "fast":     "gpt-4o-mini",
+        "balanced": "gpt-5.4-mini",
+        "strong":   "claude-opus-4-7",
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Validating a model exists" icon="circle-check">
+    Send a minimal request and check for a `404`:
+
+    ```bash
+    curl https://api.savegate.ai/v1/chat/completions \
+      -H "Authorization: Bearer sg-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+      -H "Content-Type: application/json" \
+      -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"hi"}],"max_tokens":1}'
+    ```
+
+    A `404` with `Model not found` means the ID is not available on your
+    account. Anything else means the model is reachable.
+  </Accordion>
+
+  <Accordion title="Tools that list models on startup" icon="plug">
+    Some clients call `/v1/models` before their first request. Most treat an
+    unrecognised response as "no models offered" and still work once you set a
+    model explicitly in their configuration.
+
+    Codex CLI is unaffected — it never calls this endpoint. See the
+    [Codex CLI guide](/guides/codex-cli).
+  </Accordion>
+</AccordionGroup>
 
 <Note>
-See the [Models documentation](/concepts/models) for the complete list with details on capabilities and pricing.
+When this endpoint ships it will require authentication and will list only the
+models your key is permitted to call — so a listing will always match what a
+follow-up request is allowed to do.
 </Note>
